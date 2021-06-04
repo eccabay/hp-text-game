@@ -24,8 +24,10 @@ class Hero:
             self.deck = hogwarts_deck.get_ron_starting_cards()
         elif name == 'hermione':
             self.deck = hogwarts_deck.get_hermione_starting_cards()
-        else:
+        elif name == 'neville':
             self.deck = hogwarts_deck.get_neville_starting_cards()
+        else:
+            raise ValueError(f'Unknown hero {name}')
         random.shuffle(self.deck)
 
         self.discard = []

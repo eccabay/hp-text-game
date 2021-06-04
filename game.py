@@ -1,5 +1,7 @@
+import getopt
 import random
 import time
+import sys
 
 from cards.hogwarts import hogwarts_deck
 from cards.dark_arts import dark_arts_deck
@@ -155,6 +157,25 @@ class GameState:
             print()
             time.sleep(5)
 
-def game():
-    game = GameState(['harry', 'ron', 'hermione', 'neville'], 2)
+
+def main(argv):
+    players = []
+    game = 0
+
+    try:
+        opts, args = getopt.getopt(argv, "p:g:", ["players=", "game="])
+    except getopt.GetoptError:
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ('-p', '--players'):
+            arg = arg.split(' ')
+            players = arg
+        elif opt in ('-g', '--game'):
+            game = int(arg)
+
+    game = GameState(players, game)
     game.play_game()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
