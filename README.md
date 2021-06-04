@@ -2,7 +2,8 @@
 A text-based command-line version of the game Harry Potter: Hogwarts Battle
 
 ## How to play:
-### Start the game: `python game.py --game <game_number> --players "<player1> <player2> ..."`
+### Start the game: 
+`python game.py --game <game_number> --players "<player1> <player2> ..."`
 Players must be one of `harry | ron | hermione | neville`. The order they are entered is play order
 
 The game begins automatically. It will print out the full status of the game, then draw and apply the first Dark Arts Event. If necessary, it will prompt you for any action you need to take.
