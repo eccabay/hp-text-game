@@ -1,0 +1,245 @@
+from cards.hogwarts.hogwarts_card import HogwartsCard
+from game_state import GameState
+from utils import actions, Action, GameAction
+from cards import hero, Hero, Location
+
+
+def get_test_hero():
+    return Hero('ron')
+
+def get_test_heroes():
+    return [Hero('harry'), Hero('ron'), Hero('hermione'), Hero('neville')]
+
+def get_test_location():
+    return Location('test location', 4, 1)
+
+def get_test_game():
+    return GameState(['harry', 'ron', 'hermione', 'neville'], 1)
+
+
+def test_active_single_simple_action():
+    test_hero = get_test_hero()
+    test_hero.hearts = 5
+
+    heart_action = Action('active', hearts=2)
+    attack_action = Action('active', attacks=1)
+    influence_action = Action('active', influence=3)
+    cards_action = Action('active', cards=2)
+
+    assert test_hero.hearts == len(test_hero.hand) == 5
+    assert test_hero.influence == test_hero.attacks == 0
+
+    heart_action.apply(test_hero)
+    assert test_hero.hearts == 7
+    assert test_hero.influence == test_hero.attacks == 0
+
+    attack_action.apply(test_hero)
+    assert test_hero.attacks == 1
+
+    influence_action.apply(test_hero)
+    assert test_hero.influence == 3
+
+    cards_action.apply(test_hero)
+    assert len(test_hero.hand) == 7
+
+    heart_action.apply(test_hero)
+    assert test_hero.hearts == 9
+    assert test_hero.attacks == 1
+    assert test_hero.influence == 3
+    assert len(test_hero.hand) == 7
+
+
+def test_all_single_simple_action():
+    harry, ron, hermione, neville = get_test_heroes()
+    all_heroes = [harry, ron, hermione, neville]
+    harry.hearts = 5
+    ron.attacks = 2
+    hermione.influence = 3
+    neville.draw_card()
+
+    heart_action = Action('all', hearts=2)
+    attack_action = Action('all', attacks=1)
+    influence_action = Action('all', influence=3)
+    cards_action = Action('all', cards=2)
+
+    heart_action.apply(ron, all_heroes=all_heroes)
+    assert harry.hearts == 7
+    assert hermione.hearts == ron.hearts == neville.hearts == 10
+
+    attack_action.apply(hermione, all_heroes=all_heroes)
+    assert ron.attacks == 3
+    assert harry.attacks == hermione.attacks == neville.attacks == 1
+
+    influence_action.apply(neville, all_heroes=all_heroes)
+    assert hermione.influence == 6
+    assert harry.influence == ron.influence == neville.influence == 3
+
+    cards_action.apply(harry, all_heroes=all_heroes)
+    assert len(neville.hand) == 8
+    assert len(harry.hand) == len(ron.hand) == len(hermione.hand) == 7
+
+
+def test_any_single_simple_action():
+    test_hero = get_test_hero()
+    other_hero = Hero('harry')
+    other_hero.hearts = 1
+    other_hero.influence = 2
+
+    heart_action = Action('any', hearts=2)
+    attack_action = Action('any', attacks=1)
+    influence_action = Action('any', influence=3)
+    cards_action = Action('any', cards=2)
+
+    input_values = ['harry', 'ron', 'ron', 'harry']
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+    
+    heart_action.apply(test_hero, [test_hero, other_hero])
+    assert test_hero.hearts == 10
+    assert other_hero.hearts == 3
+
+    attack_action.apply(test_hero, [test_hero, other_hero])
+    assert test_hero.attacks == 1
+    assert other_hero.attacks == 0
+
+    influence_action.apply(test_hero, [test_hero, other_hero])
+    assert test_hero.influence == 3
+    assert other_hero.influence == 2
+
+    cards_action.apply(test_hero, [test_hero, other_hero])
+    assert len(test_hero.hand) == 5
+    assert len(other_hero.hand) == 7
+
+
+def test_active_remove_metal():
+    test_hero = get_test_hero()
+    location = get_test_location()
+    location.current = 3
+
+    action = Action(metal=-1)
+    action.apply(test_hero, current_location=location)
+    assert location.current == 2
+    action.apply(test_hero, current_location=location)
+    assert location.current == 1    
+
+
+def test_active_cards_on_top():
+    test_hero = get_test_hero()
+    test_hero.influence = 14
+
+    game = get_test_game()
+    spell_card = HogwartsCard('Test Spell', 'spell', 1)
+    item_card = HogwartsCard('Test Item', 'item', 5)
+    ally_card = HogwartsCard('Test Ally', 'item', 4)
+    game.store = [ally_card, spell_card, item_card, ally_card]
+
+    top_spell_action = Action(cards_on_top='spell')
+    top_item_action = Action(cards_on_top='item')
+    top_ally_action = Action(cards_on_top='ally')
+
+    input_values = [1, 1, 1, 1]
+    def mock_input(s):
+        return input_values.pop(0)
+    hero.input = mock_input
+
+    top_spell_action.apply(test_hero)
+    assert test_hero.cards_on_top == ['spell']
+    test_hero.buy_card(game)  # Buy an ally, goes in discard pile
+    assert len(test_hero.discard) == 1
+    test_hero.buy_card(game)  # Buy a spell, goes in deck
+    assert len(test_hero.discard) == 1
+    assert len(test_hero.deck) == 6
+    assert test_hero.deck[-1].name == 'Test Spell'
+
+    top_item_action.apply(test_hero)
+    assert test_hero.cards_on_top == ['spell', 'item']
+    test_hero.buy_card(game)
+    assert len(test_hero.discard) == 1
+    assert len(test_hero.deck) == 7
+    assert test_hero.deck[-1].name == 'Test Item'
+    
+    top_ally_action.apply(test_hero)
+    assert test_hero.cards_on_top == ['spell', 'item', 'ally']
+    test_hero.buy_card(game)
+    assert len(test_hero.discard) == 1
+    assert len(test_hero.deck) == 8
+    assert test_hero.deck[-1].name == 'Test Ally'
+
+
+def test_copy_action():
+    game = get_test_game()
+    ginny = HogwartsCard('Ginny Weasley', 'ally', cost=4, regular=Action(attacks=1, influence=1))
+    copy_action = Action(copy='ally')
+
+    harry = game.get_active_hero()
+
+    input_values = [1]
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    # Apply action with no allies - nothing changes
+    copy_action.apply(harry, game=game)
+    assert harry.influence == 0
+    assert harry.attacks == 0
+
+    # Apply action with ally in play pile - card is played
+    harry.played = [ginny]
+    copy_action.apply(harry, game=game)
+    assert harry.influence == 1
+    assert harry.attacks == 1
+
+
+def test_search_action():
+    game = get_test_game()
+    ginny = HogwartsCard('Ginny Weasley', 'ally', cost=4, regular=Action(attacks=1, influence=1))
+    test_spell = HogwartsCard('Test Spell', 'spell')
+    search_action = Action(search='ally')
+
+    harry = game.get_active_hero()
+    harry.discard = [test_spell]
+
+    input_values = [1]
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    # Apply action with no allies in discard - nothing changes
+    search_action.apply(harry, game=game)
+    assert len(harry.hand) == 5
+
+    # Apply action with ally in play pile - card is played
+    harry.discard.append(ginny)
+    search_action.apply(harry, game=game)
+    assert len(harry.hand) == 6
+
+
+def test_game_action():
+    game = get_test_game()
+    game.current_villains[1].current = 3
+
+    harry = game.get_active_hero()
+    harry.attacks = 2
+
+    action = GameAction(attacks=-1)
+    action.apply(harry, game=game)
+
+    assert game.current_villains[1].current == 2
+    assert harry.attacks == 2
+
+
+def test_discard_type_not_allowed():
+    action = Action(hearts=-2, discard=1, discard_type='spell', choice=True)
+    harry = Hero('harry')
+    test_item = HogwartsCard('Test Item', 'item')
+    harry.hand = [test_item, test_item, test_item]
+
+    input_values = ['discard', 'hearts']
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    action.apply(harry)
+    assert harry.hearts == 8
+    assert len(harry.hand) == 3
