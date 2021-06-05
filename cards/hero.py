@@ -171,7 +171,7 @@ class Hero:
     def play_turn(self, game):
         print(f'\nHearts: {self.hearts}   Influence: {self.influence}   Attacks: {self.attacks}')
 
-        while len(self.hand) > 0:
+        while len(self.hand) > 0 and not self.end:
 
             # Show options
             print('Cards:')
