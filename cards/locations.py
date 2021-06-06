@@ -32,10 +32,23 @@ def game_2_deck():
     return copy.deepcopy(game_2_cards)
 
 
+# Game 3 Locations
+hogwarts_express = Location('1 of 3 - Hogwarts Express', 5, 1)
+hogsmeade = Location('2 of 3 - Hogsmeade Village', 6, 2)
+shrieking_shack = Location('3 of 3 - Shrieking Shack', 6, 2)
+
+game_3_cards = [hogwarts_express, hogsmeade, shrieking_shack]
+
+def game_3_deck():
+    return copy.deepcopy(game_3_cards)
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
     elif game == 2:
         return game_2_deck()
+    elif game == 3:
+        return game_3_deck()
     else:
         raise ValueError('Game not supported yet')
