@@ -250,18 +250,18 @@ def test_game_action():
 
 def test_discard_type_not_allowed():
     action = Action(hearts=-2, discard=1, discard_type='spell', choice=True)
-    harry = Hero('harry')
+    ron = Hero('ron')
     test_item = HogwartsCard('Test Item', 'item')
-    harry.hand = [test_item, test_item, test_item]
+    ron.hand = [test_item, test_item, test_item]
 
     input_values = ['discard', 'hearts']
     def mock_input(s):
         return input_values.pop(0)
     actions.input = mock_input
 
-    action.apply(harry)
-    assert harry.hearts == 8
-    assert len(harry.hand) == 3
+    action.apply(ron)
+    assert ron.hearts == 8
+    assert len(ron.hand) == 3
 
 
 def test_polyjuice_with_bertie():

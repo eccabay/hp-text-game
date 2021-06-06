@@ -136,7 +136,7 @@ class Hero:
             print(game.current_location)
             return
         if move == 'villain status' or move == 'villain':
-            for villain in game.current_villains:
+            for villain in game.current_villains.values():
                 print(villain)
             print(f'There are {len(game.villain_deck)} other villains remaining')
             return
@@ -194,7 +194,7 @@ class Hero:
                     move = input('Buy a card, attack a villain, or choose a card to play: ')
                 self.process_input(move, game)
 
-        if len(self.hand) > 0:
+        if len(self.hand) > 0 and not self.end:
             self.play_turn(game)
 
     def buy_card(self, game):

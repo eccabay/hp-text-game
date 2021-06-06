@@ -46,3 +46,19 @@ def test_discard_or_lose():
     assert neville.hearts == 8
     assert len(ron.hand) == 2
     assert len(neville.hand) == 1
+
+
+def test_petrification():
+    game = GameState(['harry'], 1)
+    petrification = DarkArtsCard('Petrification', active=Action(person='all', hearts=-1), passive=Action(person='all', passive='draw'))
+    draw_card = HogwartsCard('test card', 'item', regular=Action(cards=1))
+    
+    harry = game.get_active_hero()
+    harry.hand = [draw_card]
+
+    petrification.apply(harry, game)
+    assert harry.hearts == 9
+
+    assert len(harry.hand) == 1
+    harry.process_input(1, game)
+    assert len(harry.hand) == 0
