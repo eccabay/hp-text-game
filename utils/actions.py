@@ -32,6 +32,8 @@ class Action:
             text = text + f'{self.cards_on_top} cards purchased can go on top of deck || '
         if self.copy is not None:
             text = text + f'Copy the effects of a {self.copy} played this turn || '
+        if self.search is not None:
+            text = text + f'Search discard pile for a {self.search} || '
         if self.passive:
             text = text + f'for each card of type {self.passive} || '
         if self.choice:
@@ -125,6 +127,8 @@ class Action:
             options['cards'] = self.cards
         if self.discard != 0:
             options['discard'] = self.discard
+        if self.search is not None:
+            options['search'] = self.search
 
         choice = input(f'{hero.name}, choose either of {options}: ')
         if choice == 'hearts' or choice =='h':
@@ -149,6 +153,10 @@ class Action:
             # Discard the correct number of cards
             for i in range(self.discard):
                 hero.prompt_discard(game, self.discard_type)
+        elif choice == 'search' or choice == 's':
+            pull_card = self.select_card(hero, hero.discard, self.search)
+            if pull_card is not None:
+                hero.hand.append(pull_card)
         else:
             print(f'Choice of {choice} is invalid. Try again')
             self.handle_choice(hero, game)

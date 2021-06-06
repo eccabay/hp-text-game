@@ -216,6 +216,24 @@ def test_search_action():
     assert len(harry.hand) == 6
 
 
+def test_choice_of_search():
+    game = GameState(['ron'], 1)
+    search_action = Action(influence=1, search='spell', choice=True)
+
+    test_spell = HogwartsCard('Test Spell', 'spell')
+    ron = game.get_active_hero()
+    ron.discard = [test_spell]
+
+    input_values = ['search', 1]
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    search_action.apply(ron, game)
+    assert ron.influence == 0
+    assert len(ron.hand) == 6
+
+
 def test_game_action():
     game = get_test_game()
     game.current_villains[1].current = 3
