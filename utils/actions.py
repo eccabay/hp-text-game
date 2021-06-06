@@ -107,7 +107,7 @@ class Action:
             if self.copy is not None:
                 copy_card = self.select_card(hero, hero.played, self.copy)
                 if copy_card is not None:
-                    copy_card.play(hero, game)
+                    copy_card.play(hero, game, retry=True)  # Retry true to prevent bertie botts from triggering
 
             # Searching the discard pile
             if self.search is not None:

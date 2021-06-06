@@ -262,3 +262,35 @@ def test_discard_type_not_allowed():
     action.apply(harry)
     assert harry.hearts == 8
     assert len(harry.hand) == 3
+
+
+def test_polyjuice_with_bertie():
+    game = get_test_game()
+
+    beans = HogwartsCard('Bertie Botts Every-Flavour Beans', 'item', regular=Action(influence=1), other=Action(attacks=1, passive='ally'))
+    polyjuice = HogwartsCard('Polyjuice Potion', 'item', cost=3, regular=Action(copy='ally'))
+    ally = HogwartsCard('Pigwidgeon', 'ally', regular=Action(hearts=1))
+
+    input_values = [1]
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    harry = game.get_active_hero()
+    harry.hand = [beans, ally, polyjuice]
+    harry.hearts = 5
+
+    harry.process_input(1, game)  # Play beans
+    assert harry.influence == 1
+    assert harry.attacks == 0
+    assert harry.hearts == 5
+
+    harry.process_input(1, game)  # Play the ally
+    assert harry.influence == 1
+    assert harry.attacks == 1
+    assert harry.hearts == 6
+
+    harry.process_input(1, game)
+    assert harry.influence == 1
+    assert harry.attacks == 1
+    assert harry.hearts == 7
