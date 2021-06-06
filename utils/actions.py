@@ -56,7 +56,7 @@ class Action:
         if self.person == 'active':
             hero_list = [active_hero]
         elif self.person == 'any':
-            hero_name = input('Who would you like to apply this to? ')
+            hero_name = input(f'Who would you like to apply {self} to? ')
             for hero in all_heroes:
                 if hero_name == hero.name:
                     hero_list = [hero]
