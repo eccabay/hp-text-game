@@ -1,7 +1,7 @@
 from cards import Hero
 from cards.hogwarts.hogwarts_card import HogwartsCard
 from cards.villains import VillainCard
-from game_state import GameState
+from game import GameState
 from utils import Action
 
 

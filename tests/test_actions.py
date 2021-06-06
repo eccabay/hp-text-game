@@ -1,5 +1,5 @@
 from cards.hogwarts.hogwarts_card import HogwartsCard
-from game_state import GameState
+from game import GameState
 from utils import actions, Action, GameAction
 from cards import hero, Hero, Location
 
@@ -9,9 +9,6 @@ def get_test_hero():
 
 def get_test_heroes():
     return [Hero('harry'), Hero('ron'), Hero('hermione'), Hero('neville')]
-
-def get_test_location():
-    return Location('test location', 4, 1)
 
 def get_test_game():
     return GameState(['harry', 'ron', 'hermione', 'neville'], 1)
@@ -50,8 +47,8 @@ def test_active_single_simple_action():
 
 
 def test_all_single_simple_action():
-    harry, ron, hermione, neville = get_test_heroes()
-    all_heroes = [harry, ron, hermione, neville]
+    game = get_test_game()
+    harry, ron, hermione, neville = game.heroes
     harry.hearts = 5
     ron.attacks = 2
     hermione.influence = 3
@@ -62,19 +59,19 @@ def test_all_single_simple_action():
     influence_action = Action('all', influence=3)
     cards_action = Action('all', cards=2)
 
-    heart_action.apply(ron, all_heroes=all_heroes)
+    heart_action.apply(ron, game)
     assert harry.hearts == 7
     assert hermione.hearts == ron.hearts == neville.hearts == 10
 
-    attack_action.apply(hermione, all_heroes=all_heroes)
+    attack_action.apply(hermione, game)
     assert ron.attacks == 3
     assert harry.attacks == hermione.attacks == neville.attacks == 1
 
-    influence_action.apply(neville, all_heroes=all_heroes)
+    influence_action.apply(neville, game)
     assert hermione.influence == 6
     assert harry.influence == ron.influence == neville.influence == 3
 
-    cards_action.apply(harry, all_heroes=all_heroes)
+    cards_action.apply(harry, game)
     assert len(neville.hand) == 8
     assert len(harry.hand) == len(ron.hand) == len(hermione.hand) == 7
 
@@ -94,33 +91,37 @@ def test_any_single_simple_action():
     def mock_input(s):
         return input_values.pop(0)
     actions.input = mock_input
+
+    game = GameState(players=['ron', 'harry'], game_number=1)
+    game.heroes = [test_hero, other_hero]
     
-    heart_action.apply(test_hero, [test_hero, other_hero])
+    heart_action.apply(test_hero, game)
     assert test_hero.hearts == 10
     assert other_hero.hearts == 3
 
-    attack_action.apply(test_hero, [test_hero, other_hero])
+    attack_action.apply(test_hero, game)
     assert test_hero.attacks == 1
     assert other_hero.attacks == 0
 
-    influence_action.apply(test_hero, [test_hero, other_hero])
+    influence_action.apply(test_hero, game)
     assert test_hero.influence == 3
     assert other_hero.influence == 2
 
-    cards_action.apply(test_hero, [test_hero, other_hero])
+    cards_action.apply(test_hero, game)
     assert len(test_hero.hand) == 5
     assert len(other_hero.hand) == 7
 
 
 def test_active_remove_metal():
-    test_hero = get_test_hero()
-    location = get_test_location()
+    game = get_test_game()
+    test_hero = game.get_active_hero()
+    location = game.current_location
     location.current = 3
 
     action = Action(metal=-1)
-    action.apply(test_hero, current_location=location)
+    action.apply(test_hero, game)
     assert location.current == 2
-    action.apply(test_hero, current_location=location)
+    action.apply(test_hero, game)
     assert location.current == 1    
 
 

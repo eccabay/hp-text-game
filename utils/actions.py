@@ -41,20 +41,27 @@ class Action:
     def __str__(self):
         return self.get_information()
 
-    def apply(self, active_hero, all_heroes=None, current_location=None, game=None):
+    def apply(self, active_hero, game=None):
+        if game is not None:
+            all_heroes = game.heroes
+            current_location = game.current_location
+        else:
+            all_heroes = None
+            current_location = None
+
         # Determine who this action applies to
         hero_list = []
         if self.person == 'active':
             hero_list = [active_hero]
         elif self.person == 'any':
-            hero_name = input('Who would you like to apply this to?')
+            hero_name = input('Who would you like to apply this to? ')
             for hero in all_heroes:
                 if hero_name == hero.name:
                     hero_list = [hero]
                     break
             if len(hero_list) == 0:
                 print('That person does not exist. Try again')
-                self.apply(active_hero, all_heroes, current_location)
+                self.apply(active_hero, game)
                 return
         else:
             hero_list = all_heroes
@@ -67,7 +74,7 @@ class Action:
         # Apply the action
         for hero in hero_list:
             if self.choice:
-                self.handle_choice(hero, all_heroes)
+                self.handle_choice(hero, game)
                 continue
 
             # Passive action
@@ -79,7 +86,7 @@ class Action:
                 hero.hearts -= 1
             else:
                 hero.hearts += self.hearts
-            hero.stun(all_heroes, current_location)
+            hero.stun(game)
             hero.correct_hearts()
             hero.attacks += self.attacks
             hero.influence += self.influence
@@ -87,10 +94,10 @@ class Action:
                 for i in range(self.cards):
                     hero.draw_card()
             if self.discard > 0:
-                hero.prompt_discard(all_heroes, self.discard_type)
-                hero.check_bad_condition('discard', current_location)
+                hero.prompt_discard(game, self.discard_type)
+                hero.check_bad_condition('discard', game)
             if self.metal > 0:
-                hero.check_bad_condition('metal', current_location)
+                hero.check_bad_condition('metal', game)
             if self.cards_on_top is not None:
                 hero.cards_on_top.append(self.cards_on_top)
 
@@ -106,7 +113,7 @@ class Action:
                 if pull_card is not None:
                     hero.hand.append(pull_card)
 
-    def handle_choice(self, hero, all_heroes):
+    def handle_choice(self, hero, game):
         options = {}
         if self.hearts != 0:
             options['hearts'] = self.hearts
@@ -137,14 +144,14 @@ class Action:
                     card_types.add(card.type)
                 if self.discard_type not in card_types:
                     print(f'You do not have any cards of type {self.discard_type} to discard. Try again')
-                    self.handle_choice(hero, all_heroes)
+                    self.handle_choice(hero, game)
                     return
             # Discard the correct number of cards
             for i in range(self.discard):
-                hero.prompt_discard(all_heroes, self.discard_type)
+                hero.prompt_discard(game, self.discard_type)
         else:
             print(f'Choice of {choice} is invalid. Try again')
-            self.handle_choice(hero, all_heroes)
+            self.handle_choice(hero, game)
             return
 
     def select_card(self, hero, search_pile, card_type, pop=False):
@@ -158,7 +165,7 @@ class Action:
         # Pick which card to copy/pull back
         for i, card in enumerate(available_cards):
             print(i+1, card)
-        choice = input(f'{hero.name}, choose a {card_type}')
+        choice = input(f'{hero.name}, choose a {card_type} ')
         try:
             choice = int(choice)-1
             card_choice = available_cards[choice]

@@ -12,10 +12,10 @@ class DarkArtsCard:
             text = text + f' {self.passive.get_information()}'
         return text
 
-    def apply(self, active_hero, all_heroes, current_location):
+    def apply(self, active_hero, game):
         print(self)
         if self.active is not None:
-            self.active.apply(active_hero, all_heroes, current_location)
+            self.active.apply(active_hero, game)
         if self.passive is not None:
-            self.passive.apply(active_hero, all_heroes, current_location)
+            self.passive.apply(active_hero, game)
         return

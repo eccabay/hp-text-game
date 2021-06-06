@@ -69,12 +69,12 @@ class HogwartsCard:
                     print('Invalid choice. Try again')
                     self.play(hero, game, retry=True)
                     return
-                self.regular[move].apply(hero, game.heroes, game.current_location, game)
+                self.regular[move].apply(hero, game)
             elif isinstance(self.regular, list):
                 for action in self.regular:
-                    action.apply(hero, game.heroes, game.current_location, game)
+                    action.apply(hero, game)
             else:
-                self.regular.apply(hero, game.heroes, game.current_location, game)
+                self.regular.apply(hero, game)
 
         if self.buy is not None:
             self.buy.apply(hero)

@@ -63,16 +63,16 @@ class Hero:
         if self.hearts < 0:
             self.hearts = 0
 
-    def stun(self, all_heroes, current_location):
+    def stun(self, game):
         if self.hearts <= 0 and not self.stunned:
             self.stunned = True
-            current_location.current += 1
+            game.current_location.current += 1
             cards_to_discard = math.floor(len(self.deck)/2)
-            print(f'Stunned! Current location has {current_location.current} metal. Discard {cards_to_discard} cards')
+            print(f'Stunned! Current location has {game.current_location.current} metal. Discard {cards_to_discard} cards')
             for card in range(cards_to_discard):
-                self.prompt_discard(all_heroes)
+                self.prompt_discard(game)
 
-    def prompt_discard(self, all_heroes, discard_type):
+    def prompt_discard(self, game, discard_type='any'):
         print('Cards:')
         for i, card in enumerate(self.hand):
             print(f'{i+1} {card.get_information()}')
@@ -84,24 +84,24 @@ class Hero:
             if discard_type != 'any':
                 if discarded.type != discard_type:
                     print(f'Card {discarded.name} is not of type {discard_type}. Try again')
-                    self.prompt_discard(all_heroes, discard_type)
+                    self.prompt_discard(game, discard_type)
                     return
         except (IndexError, ValueError):
             print(f'Index {discard_index} is not valid')
-            self.prompt_discard(all_heroes, discard_type)
+            self.prompt_discard(game, discard_type)
             return
         
         discarded = self.hand.pop(int(discard_index)-1)
 
         # Apply any discarding bonus
         if discarded.discard is not None:
-            discarded.discard.apply(self, all_heroes=all_heroes)
+            discarded.discard.apply(self, game)
         # Place the card in the discard pile
         self.discard.append(discarded)
 
-    def check_bad_condition(self, condition, current_location):
+    def check_bad_condition(self, condition, game):
         if condition in self.bad_passive:
-            self.bad_passive[condition].apply(self, current_location=current_location)
+            self.bad_passive[condition].apply(self, game)
 
     def draw_card(self, new_turn=False):
         if 'draw' in self.bad_passive:
@@ -134,6 +134,11 @@ class Hero:
             return
         if move == 'location status' or move == 'location':
             print(game.current_location)
+            return
+        if move == 'villain status' or move == 'villain':
+            for villain in game.current_villains:
+                print(villain)
+            print(f'There are {len(game.villain_deck)} other villains remaining')
             return
         if move == 'hero status' or move == 'heroes':
             for hero in game.heroes:

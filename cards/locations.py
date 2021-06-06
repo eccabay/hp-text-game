@@ -8,7 +8,7 @@ class Location:
         self.current = 0
 
     def __str__(self):
-        return f'{self.name}   Metal: {self.current}/{self.max}'
+        return f'{self.name}   Metal: {self.current}/{self.max}   {self.dark_arts} Dark Arts Events'
 
 
 # Game 1 Locations

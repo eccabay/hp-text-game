@@ -1,4 +1,4 @@
-from game_state import GameState
+from game import GameState
 from cards import hero, Hero
 from cards.dark_arts import DarkArtsCard
 from cards.hogwarts.hogwarts_card import HogwartsCard
@@ -52,7 +52,7 @@ def test_passive_only_on_bad():
     neville = game.get_active_hero()
 
     draco.apply_passive(neville, game.heroes)
-    hwmnbn.apply(neville, game.heroes, game.current_location)
+    hwmnbn.apply(neville, game)
     assert game.current_location.current == 1
     assert neville.hearts == 8
 
@@ -91,13 +91,13 @@ def test_all_discard():
     assert neville.hearts == 10
     assert len(neville.hand) == 5
 
-    discard_active_action.apply(ron, all_heroes=game.heroes)
+    discard_active_action.apply(ron, game)
     assert ron.hearts == 9
     assert len(ron.hand) == 4
     assert neville.hearts == 10
     assert len(neville.hand) == 5
 
-    discard_all_action.apply(ron, all_heroes=game.heroes)
+    discard_all_action.apply(ron, game)
     assert ron.hearts == 8
     assert len(ron.hand) == 3
     assert neville.hearts == 9

@@ -82,13 +82,13 @@ class GameState:
                 random.shuffle(self.dark_arts_draw)
 
             dark_arts_card = self.dark_arts_draw.pop()
-            dark_arts_card.apply(self.get_active_hero(), self.heroes, self.current_location)
+            dark_arts_card.apply(self.get_active_hero(), self)
             self.dark_arts_discard.append(dark_arts_card)
 
     def apply_villains(self):
         for villain in self.current_villains.values():
             villain.apply_for_each(self.get_active_hero())
-            villain.apply_active(self.get_active_hero(), self.heroes, self.current_location)
+            villain.apply_active(self.get_active_hero(), self)
 
     def play_turn(self):
         active_hero = self.get_active_hero()

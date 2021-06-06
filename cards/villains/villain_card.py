@@ -39,10 +39,10 @@ class VillainCard:
                     if card.type == card_type:
                         action.apply(active_hero)
 
-    def apply_active(self, active_hero, all_heroes, current_location):
+    def apply_active(self, active_hero, game):
         if self.active_action is not None:
             print(f'Villain {self.name}: {self.active_action}')
-            self.active_action.apply(active_hero, all_heroes, current_location)
+            self.active_action.apply(active_hero, game)
 
     def attack(self, num_attacks, game, villain_index):
         self.current += num_attacks
@@ -56,10 +56,10 @@ class VillainCard:
             if 'defeat' in hero.good_passive:
                 for reward in hero.good_passive['defeat']:
                     print(f"{hero.name} gets reward {reward}")
-                    reward.apply(game.get_active_hero(), game.heroes, game.current_location)
+                    reward.apply(game.get_active_hero(), game)
             if self.passive_action is not None:
                 remove_effect = self.passive_action.passive
                 if remove_effect in hero.bad_passive:
                     hero.bad_passive.pop(remove_effect)
-        self.reward.apply(game.get_active_hero(), game.heroes, game.current_location)
+        self.reward.apply(game.get_active_hero(), game)
         game.current_villains[int(villain_index)] = None
