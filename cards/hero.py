@@ -244,9 +244,20 @@ class Hero:
             return
 
         # Choose a villain to attack, and make sure the villain exists
+        limited = False
         for villain_number, villain in game.current_villains.items():
+            if villain.limited:
+                limited = True
             print(f'{villain_number} - {villain.name} ({villain.current}/{villain.strength})')
-        villain_index = input('Who would you like to attack? ')
+        if limited:
+            print('You may only assign one attack to each villain this turn')
+        
+        if len(game.current_villains) > 1:
+            villain_index = input('Who would you like to attack? ')
+        else:
+            villain_index = 1
+            print(f'Attacking {game.current_villains[1]}')
+        
         try:
             villain = game.current_villains[int(villain_index)]
         except (IndexError, ValueError):

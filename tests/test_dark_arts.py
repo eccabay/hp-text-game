@@ -1,4 +1,4 @@
-from utils import actions, Action
+from utils import actions, Action, GameAction
 from cards.dark_arts import DarkArtsCard
 from cards.hogwarts import HogwartsCard
 from game import GameState
@@ -62,3 +62,27 @@ def test_petrification():
     assert len(harry.hand) == 1
     harry.process_input(1, game)
     assert len(harry.hand) == 0
+
+
+def test_tarantallegra():
+    game = GameState(['harry'], 1)
+    tarantallegra = DarkArtsCard('Tarantallegra', active=[Action(hearts=-1), GameAction(limit=True)])
+    harry = game.get_active_hero()
+    harry.attacks = 2
+    villain = game.current_villains[1]
+
+    assert not villain.limited
+    tarantallegra.apply(harry, game)
+    assert harry.hearts == 9
+    assert villain.limited
+
+    hero_input_values = ['2']
+    def mock_hero_input(s):
+        return hero_input_values.pop(0)
+    hero.input = mock_hero_input
+
+    harry.attack_villain(game)
+    assert villain.current == 1
+
+    game.end_turn()
+    assert not villain.limited

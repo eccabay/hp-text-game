@@ -9,12 +9,17 @@ class VillainCard:
         self.for_each_action = for_each_action
         self.reward = reward
         self.muted = None
+        self.limited = False
         self.current = 0
 
     def __str__(self):
         text = f'{self.name}   Attacks: {self.current}/{self.strength}'
         if self.active_action is not None:
-            text = text + f'\n{self.active_action.get_information()}'
+            if isinstance(self.active_action, list):
+                for action in self.active_action:
+                    text = text + f'\n{action.get_information()}'
+            else:
+                text = text + f'\n{self.active_action.get_information()}'
         if self.passive_action is not None:
             text = text + f'\n{self.passive_action.get_information()}'
         text = text + f'\nReward: {self.reward.get_information()}'
@@ -45,10 +50,17 @@ class VillainCard:
     def apply_active(self, active_hero, game):
         if self.active_action is not None and self.muted is None:
             print(f'Villain {self.name}: {self.active_action}')
-            self.active_action.apply(active_hero, game)
+            if isinstance(self.active_action, list):
+                for action in self.active_action:
+                    action.apply(active_hero, game)
+            else:
+                self.active_action.apply(active_hero, game)
 
     def attack(self, num_attacks, game, villain_index):
-        self.current += num_attacks
+        if self.limited:
+            self.current += 1
+        else:
+            self.current += num_attacks
         print(f'{self.name}   Attacks: {self.current}/{self.strength}')
         if self.current >= self.strength:
             self.defeat(game, villain_index)

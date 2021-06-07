@@ -119,6 +119,8 @@ class GameState:
                 new_villain = self.villain_deck.pop()
                 print(f'The new villian is {new_villain}\n')
                 self.current_villains[int(villian_number)] = new_villain
+            else:
+                villain.limited = False  # Undo Tarantallegra, if necessary
 
         # Lose the location, if neccessary
         if self.current_location.current >= self.current_location.max:

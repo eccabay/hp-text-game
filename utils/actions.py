@@ -216,17 +216,25 @@ class Action:
 # Regular actions apply to heroes, game actions apply somewhere else on the board
 class GameAction(Action):
 
-    def __init__(self, mute=False, **kwargs):
+    def __init__(self, mute=False, limit=False, **kwargs):
         self.mute = mute
+        self.limit = limit
         super(GameAction, self).__init__(**kwargs)
 
     def __str__(self):
         text = super(GameAction, self).__str__()
         if self.mute:
             text = text + 'Mute a selected villain || '
+        if self.limit:
+            text = text + 'Can only assign one attack to each villain this turn || '
         return text
 
     def apply(self, active_hero, game=None):
+
+        # Limit a villain from more than one attack this turn
+        if self.limit:
+            for villain in game.current_villains.values():
+                villain.limited = True
 
         # Petrify a villain
         if self.mute:
