@@ -1,5 +1,7 @@
+from math import cos
 import random
 import copy
+from utils.actions import GameAction
 
 from utils import Action
 from .hogwarts_card import HogwartsCard
@@ -97,10 +99,34 @@ def game_2_deck():
     return deck
 
 
+# Game 3 Cards
+
+expecto_patronum = HogwartsCard('Expecto Patronum!', 'spell', cost=5, regular=Action(attacks=1, metal=-1))
+petrificus = HogwartsCard('Petrificus Totalus!', 'spell', cost=6, regular=[Action(attacks=1), GameAction(mute=True)])
+
+crystal_ball = HogwartsCard('Crystal Ball', 'item', cost=3, regular=Action(cards=2, discard=1))
+marauders_map = HogwartsCard('Marauder\'s Map', 'item', cost=5, regular=Action(cards=2), discard=Action(person='all', cards=1))
+chocolate_frog = HogwartsCard('Chocolate Frog', 'item', cost=2, regular=Action(person='any', hearts=1, influence=1), discard=Action(hearts=1, influence=1))
+butterbeer = HogwartsCard('Butterbeer', 'item', cost=3, regular=[Action(person='any', hearts=1, influence=1), Action(person='any', hearts=1, influence=1)])
+
+trelawney = HogwartsCard('Sybill Trelawney', 'ally', cost=4, regular=Action(cards=2, discard=1), discard=Action(influence=2, discard_type='spell'))
+sirius = HogwartsCard('Sirius Black', 'ally', cost=6, regular=Action(attacks=2, influence=1))
+lupin = HogwartsCard('Remus Lupin', 'ally', cost=4, regular=[Action(attacks=1), Action(person='any', hearts=3)])
+
+game_3_cards = [expecto_patronum, expecto_patronum, petrificus, petrificus, crystal_ball, crystal_ball, marauders_map,
+                chocolate_frog, chocolate_frog, chocolate_frog, butterbeer, butterbeer, butterbeer, trelawney, sirius, lupin]
+
+def game_3_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards)
+    random.shuffle(deck)
+    return deck
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
     if game == 2:
         return game_2_deck()
+    if game == 3:
+        return game_3_deck()
     else:
         raise ValueError('Game not supported yet')
