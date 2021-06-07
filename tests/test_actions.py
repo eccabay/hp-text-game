@@ -296,6 +296,7 @@ def test_game_action():
     assert game.current_villains[1].current == 2
     assert harry.attacks == 2
 
+
 def test_mute_action():
     mute_action = GameAction(mute=True)
     game = GameState(['harry', 'ron'], 1)
@@ -331,3 +332,24 @@ def test_mute_action():
 
     game.draw_dark_arts()
     assert villain.muted is None
+
+
+def test_reveal_action():
+    game = get_test_game()
+    reveal_action = Action(reveal='value', hearts=-1)
+
+    test_novalue = HogwartsCard('Test No Value', 'spell')
+    test_value = HogwartsCard('Test Value', 'spell', cost=3)
+
+    harry = game.get_active_hero()
+    harry.deck = [test_novalue, test_value]
+
+    reveal_action.apply(harry, game)  # Reveal card with value
+    assert len(harry.deck) == 1
+    assert len(harry.discard) == 1
+    assert harry.hearts == 9
+
+    reveal_action.apply(harry, game)  # Reveal card with no value
+    assert len(harry.deck) == 1
+    assert len(harry.discard) == 1
+    assert harry.hearts == 9

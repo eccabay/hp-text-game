@@ -1,5 +1,6 @@
 class Action:
-    def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, cards_on_top=None, copy=None, search=None, passive=False, choice=False):
+    def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, 
+                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None):
         self.person = person  # One of {'active', 'any', 'all'}
         self.hearts = hearts
         self.attacks = attacks
@@ -13,9 +14,12 @@ class Action:
         self.search = search
         self.passive = passive
         self.choice = choice
+        self.reveal = reveal
 
     def get_information(self):
         text = f'{self.person} hero: '
+        if self.reveal is not None:
+            text = text + f'Reveal top card of deck, if {self.reveal}: '
         if self.hearts != 0:
             text = text + f'Hearts: {self.hearts} || '
         if self.attacks != 0:
@@ -86,6 +90,24 @@ class Action:
                 else:
                     hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence)
                 continue
+
+            # Reveal top card
+            if self.reveal is not None:
+                top_card = hero.deck[-1]
+                print(f'{hero} top card of deck: {top_card}')
+                if self.reveal == 'value':
+                    if top_card.cost > 0:  # If it satisfies the condition, execute the rest of the action
+                        top_card = hero.deck.pop()
+                        hero.discard.append(top_card)
+                    else:
+                        continue  # If it doesn't, continue to the next hero
+                else:  # Should be one of {ally, item, spell}
+                    if top_card.type == self.reveal:
+                        top_card = hero.deck.pop()
+                        hero.discard.append(top_card)
+                    else:
+                        continue
+
             # Active action
             if self.hearts < 0 and hero.cloaked:
                 hero.hearts -= 1

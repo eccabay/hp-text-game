@@ -28,8 +28,10 @@ class GameState:
         # Initialize Villains
         if game_number == 1 or game_number == 2:
             self.num_villains = 1
+        elif game_number == 3 or game_number == 4:
+            self.num_villains = 2
         else:
-            raise ValueError('Game not supported yet')
+            self.num_villains = 3
 
         self.villain_deck = villain_deck.get_requested_deck(game_number)
         self.current_villains = {}
