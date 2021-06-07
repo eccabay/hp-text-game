@@ -1,7 +1,7 @@
 import random
 import copy
 
-from utils import Action
+from utils import Action, GameAction
 from .dark_arts_card import DarkArtsCard
 
 # Game 1 Dark Arts
@@ -33,10 +33,27 @@ def game_2_deck():
     random.shuffle(deck)
     return deck
 
+
+# Game 3 Dark Arts
+
+dementors_kiss = DarkArtsCard('Dementor\'s Kiss', active=[Action(hearts=-1), Action(person='all', hearts=-1)])
+tarantallegra = DarkArtsCard('Tarantallegra', active=[Action(hearts=-1), GameAction(limit=True)])
+oppugno = DarkArtsCard('Oppugno!', active=Action(person='all', reveal='value', hearts=-2))
+
+game_3_cards = [dementors_kiss, dementors_kiss, tarantallegra, oppugno]
+
+def game_3_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
     if game == 2:
         return game_2_deck()
+    if game == 3:
+        return game_3_deck()
     else:
         raise ValueError('Game not supported yet')
