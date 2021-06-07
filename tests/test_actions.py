@@ -1,3 +1,4 @@
+from cards.villains.villain_card import VillainCard
 from cards.hogwarts.hogwarts_card import HogwartsCard
 from game import GameState
 from utils import actions, Action, GameAction
@@ -234,20 +235,6 @@ def test_choice_of_search():
     assert len(ron.hand) == 6
 
 
-def test_game_action():
-    game = get_test_game()
-    game.current_villains[1].current = 3
-
-    harry = game.get_active_hero()
-    harry.attacks = 2
-
-    action = GameAction(attacks=-1)
-    action.apply(harry, game=game)
-
-    assert game.current_villains[1].current == 2
-    assert harry.attacks == 2
-
-
 def test_discard_type_not_allowed():
     action = Action(hearts=-2, discard=1, discard_type='spell', choice=True)
     ron = Hero('ron')
@@ -294,3 +281,53 @@ def test_polyjuice_with_bertie():
     assert harry.influence == 1
     assert harry.attacks == 1
     assert harry.hearts == 7
+
+
+def test_game_action():
+    game = get_test_game()
+    game.current_villains[1].current = 3
+
+    harry = game.get_active_hero()
+    harry.attacks = 2
+
+    action = GameAction(attacks=-1)
+    action.apply(harry, game=game)
+
+    assert game.current_villains[1].current == 2
+    assert harry.attacks == 2
+
+def test_mute_action():
+    mute_action = GameAction(mute=True)
+    game = GameState(['harry', 'ron'], 1)
+    harry, ron = game.heroes
+    villain = VillainCard('Test Villain', 4, active_action=Action(hearts=-1), passive_action=Action(hearts=-2, passive='metal'), reward=Action(hearts=3))
+    game.current_villains[1] = villain
+
+    input_values = [1]
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    game.apply_villains()
+    villain.apply_passive(harry, game.heroes)
+    assert 'metal' in harry.bad_passive
+    assert harry.hearts == 9
+    assert ron.hearts == 10
+
+    mute_action.apply(harry, game)
+    assert 'metal' not in harry.bad_passive
+    assert villain.muted == 'harry'
+
+    game.end_turn()  # End harry's turn
+    assert villain.muted == 'harry'
+
+    game.apply_villains()
+    villain.apply_passive(ron, game.heroes)
+    assert 'metal' not in ron.bad_passive
+    assert harry.hearts == 9
+    assert ron.hearts == 10
+    game.end_turn()  # End ron's turn
+    assert villain.muted == 'harry'
+
+    game.draw_dark_arts()
+    assert villain.muted is None

@@ -35,7 +35,7 @@ class Action:
         if self.search is not None:
             text = text + f'Search discard pile for a {self.search} || '
         if self.passive:
-            text = text + f'for each card of type {self.passive} || '
+            text = text + f'for each {self.passive} || '
         if self.choice:
             text = text + '(choose one)'
         return text
@@ -81,7 +81,10 @@ class Action:
 
             # Passive action
             if self.passive:
-                hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence)
+                if self.passive == 'draw':
+                    hero.bad_passive['draw'] = None
+                else:
+                    hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence)
                 continue
             # Active action
             if self.hearts < 0 and hero.cloaked:
@@ -132,7 +135,10 @@ class Action:
 
         choice = input(f'{hero.name}, choose either of {options}: ')
         if choice == 'hearts' or choice =='h':
-            hero.hearts += self.hearts
+            if self.hearts < 0 and hero.cloaked:
+                hero.hearts -= 1
+            else:
+                hero.hearts += self.hearts
         elif choice == 'attacks' or choice == 'a':
             hero.attacks += self.attacks
         elif choice == 'influence' or choice == 'i':
@@ -188,11 +194,49 @@ class Action:
 # Regular actions apply to heroes, game actions apply somewhere else on the board
 class GameAction(Action):
 
-    def apply(self, active_hero, all_heroes=None, current_location=None, game=None):
+    def __init__(self, mute=False, **kwargs):
+        self.mute = mute
+        super(GameAction, self).__init__(**kwargs)
+
+    def __str__(self):
+        text = super(GameAction, self).__str__()
+        if self.mute:
+            text = text + 'Mute a selected villain || '
+        return text
+
+    def apply(self, active_hero, game=None):
+
+        # Petrify a villain
+        if self.mute:
+            for villain_id, villain in game.current_villains.items():
+                print(villain_id, villain)
+
+            # Get which villain to mute
+            move = input('Which villain would you like to mute? ')
+            try:
+                villain_id = int(move)
+                if villain_id < len(game.current_villains):
+                    print('Not a valid villain. Please try again.')
+                    self.apply(active_hero, game)
+                    return
+            except ValueError:
+                print('Not a valid villain number. Please try again')
+                self.apply(active_hero, game)
+                return
+
+            # Mute the villain
+            muted_villain = game.current_villains[villain_id]
+            muted_villain.muted = active_hero.name
+            if muted_villain.passive_action is not None:
+                for hero in game.heroes:
+                    remove_effect = muted_villain.passive_action.passive
+                    if remove_effect in hero.bad_passive:
+                        hero.bad_passive.pop(remove_effect)
 
         # Remove attacks from all villains
-        for villain in game.current_villains.values():
-            villain.current += self.attacks
-            if villain.current < 0:
-                villain.current = 0
-            print(f'{villain.name} is now at {villain.current}/{villain.strength}')
+        if self.attacks != 0:
+            for villain in game.current_villains.values():
+                villain.current += self.attacks
+                if villain.current < 0:
+                    villain.current = 0
+                print(f'{villain.name} is now at {villain.current}/{villain.strength}')

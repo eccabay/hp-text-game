@@ -71,6 +71,12 @@ class GameState:
     def draw_dark_arts(self):
         # Conditional checks for villains first
         for villain in self.current_villains.values():
+
+            # Remove petrification if it's the start of the muting hero's turn
+            if villain.muted is not None:
+                if villain.muted == self.get_active_hero().name:
+                    villain.muted = None
+
             villain.apply_passive(self.get_active_hero(), self.heroes)
 
         for i in range(self.current_location.dark_arts):
@@ -149,6 +155,7 @@ class GameState:
             print(f'{active_hero.name} Hearts: {active_hero.hearts}   Influence: {active_hero.influence}   Attacks: {active_hero.attacks}\n')
             self.draw_dark_arts()
             print()
+            time.sleep(2)
             self.apply_villains()
             print()
             self.play_turn()

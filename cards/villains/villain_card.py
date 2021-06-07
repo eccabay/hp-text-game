@@ -8,6 +8,7 @@ class VillainCard:
         self.passive_action = passive_action
         self.for_each_action = for_each_action
         self.reward = reward
+        self.muted = None
         self.current = 0
 
     def __str__(self):
@@ -17,10 +18,12 @@ class VillainCard:
         if self.passive_action is not None:
             text = text + f'\n{self.passive_action.get_information()}'
         text = text + f'\nReward: {self.reward.get_information()}'
+        if self.muted is not None:
+            text = text + f'\nMUTED by {self.muted}'
         return text
 
     def apply_passive(self, active_hero, all_heroes):
-        if self.passive_action is not None:
+        if self.passive_action is not None and self.muted is None:
             action = self.passive_action
             if action.person == 'active':
                 if isinstance(action, GameAction):
@@ -32,7 +35,7 @@ class VillainCard:
                     hero.bad_passive[action.passive] = Action(hearts=action.hearts)
     
     def apply_for_each(self, active_hero):
-        if self.for_each_action is not None:
+        if self.for_each_action is not None and self.muted is None:
             for card_type, action in self.for_each_action.items():
                 print(f'Villain {self.name}: {action} for each {card_type}')
                 for card in active_hero.hand:
@@ -40,7 +43,7 @@ class VillainCard:
                         action.apply(active_hero)
 
     def apply_active(self, active_hero, game):
-        if self.active_action is not None:
+        if self.active_action is not None and self.muted is None:
             print(f'Villain {self.name}: {self.active_action}')
             self.active_action.apply(active_hero, game)
 
