@@ -1,3 +1,5 @@
+import time
+
 from utils import Action, GameAction
 
 class VillainCard:
@@ -55,6 +57,7 @@ class VillainCard:
                     action.apply(active_hero, game)
             else:
                 self.active_action.apply(active_hero, game)
+            time.sleep(2)
 
     def attack(self, num_attacks, game, villain_index):
         if self.limited:

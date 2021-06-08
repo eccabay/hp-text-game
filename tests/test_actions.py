@@ -336,20 +336,21 @@ def test_mute_action():
 
 def test_reveal_action():
     game = get_test_game()
-    reveal_action = Action(reveal='value', hearts=-1)
+    reveal_action = Action(reveal='value', metal=1)
 
     test_novalue = HogwartsCard('Test No Value', 'spell')
     test_value = HogwartsCard('Test Value', 'spell', cost=3)
 
     harry = game.get_active_hero()
     harry.deck = [test_novalue, test_value]
+    assert game.current_location.current == 0
 
     reveal_action.apply(harry, game)  # Reveal card with value
     assert len(harry.deck) == 1
     assert len(harry.discard) == 1
-    assert harry.hearts == 9
+    assert game.current_location.current == 1
 
     reveal_action.apply(harry, game)  # Reveal card with no value
     assert len(harry.deck) == 1
     assert len(harry.discard) == 1
-    assert harry.hearts == 9
+    assert game.current_location.current == 1

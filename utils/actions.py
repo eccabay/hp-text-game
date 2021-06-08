@@ -1,3 +1,5 @@
+import random
+
 class Action:
     def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, 
                  cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None):
@@ -73,9 +75,10 @@ class Action:
             hero_list = all_heroes
 
         # Adding/removing metal doesn't depend on the number of heroes
-        if current_location is not None:
+        if current_location is not None and self.reveal is None:
             current_location.current += self.metal
             current_location.current = max(current_location.current, 0)
+            current_location.current = min(current_location.current, current_location.max)
 
         # Apply the action
         for hero in hero_list:
@@ -93,19 +96,34 @@ class Action:
 
             # Reveal top card
             if self.reveal is not None:
+                if len(hero.deck) == 0:
+                    hero.deck = hero.discard
+                    hero.discard = []
+                    random.shuffle(hero.deck)
                 top_card = hero.deck[-1]
-                print(f'{hero} top card of deck: {top_card}')
+                print(f'{hero.name} top card of deck: {top_card}')
                 if self.reveal == 'value':
                     if top_card.cost > 0:  # If it satisfies the condition, execute the rest of the action
                         top_card = hero.deck.pop()
+                        if top_card.discard is not None:
+                            top_card.discard.apply(hero, game)
                         hero.discard.append(top_card)
+                        if current_location is not None:
+                            current_location.current += self.metal
+                            current_location.current = min(current_location.current, current_location.max)
+                        print('Discarded card')
                     else:
+                        print('Safe!')
                         continue  # If it doesn't, continue to the next hero
                 else:  # Should be one of {ally, item, spell}
                     if top_card.type == self.reveal:
                         top_card = hero.deck.pop()
                         hero.discard.append(top_card)
+                        if current_location is not None:
+                            current_location.current += self.metal
+                        print('Discarded card')
                     else:
+                        print('Safe!')
                         continue
 
             # Active action
@@ -221,13 +239,16 @@ class GameAction(Action):
         self.limit = limit
         super(GameAction, self).__init__(**kwargs)
 
-    def __str__(self):
-        text = super(GameAction, self).__str__()
+    def get_information(self):
+        text =  super().get_information()
         if self.mute:
             text = text + 'Mute a selected villain || '
         if self.limit:
             text = text + 'Can only assign one attack to each villain this turn || '
         return text
+
+    def __str__(self):
+        return self.get_information()
 
     def apply(self, active_hero, game=None):
 
@@ -245,7 +266,7 @@ class GameAction(Action):
             move = input('Which villain would you like to mute? ')
             try:
                 villain_id = int(move)
-                if villain_id < len(game.current_villains):
+                if villain_id > len(game.current_villains) or villain_id <= 0:
                     print('Not a valid villain. Please try again.')
                     self.apply(active_hero, game)
                     return

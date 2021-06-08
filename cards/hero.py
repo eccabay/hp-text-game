@@ -67,7 +67,7 @@ class Hero:
         if self.hearts <= 0 and not self.stunned:
             self.stunned = True
             game.current_location.current += 1
-            cards_to_discard = math.floor(len(self.deck)/2)
+            cards_to_discard = math.floor(len(self.hand)/2)
             print(f'Stunned! Current location has {game.current_location.current} metal. Discard {cards_to_discard} cards')
             for card in range(cards_to_discard):
                 self.prompt_discard(game)

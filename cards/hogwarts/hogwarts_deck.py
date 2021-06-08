@@ -31,7 +31,7 @@ def get_ron_starting_cards():
 
 # Hermione
 time_turner = HogwartsCard('Time-Turner', 'item', regular=Action(influence=1), buy=Action(cards_on_top='spell'))
-beedle_the_bard = HogwartsCard('The Tales of Beedle the Bard', 'item', regular=[Action(person='self', influence=2), Action(person='all', influence=1)], regular_choice=True)
+beedle_the_bard = HogwartsCard('The Tales of Beedle the Bard', 'item', regular=[Action(person='active', influence=2), Action(person='all', influence=1)], regular_choice=True)
 crookshanks = HogwartsCard('Crookshanks', 'ally', regular=Action(hearts=2, attacks=1, choice=True))
 
 hermione_starting_cards = [alohomora]*7 + [time_turner, beedle_the_bard, crookshanks]
