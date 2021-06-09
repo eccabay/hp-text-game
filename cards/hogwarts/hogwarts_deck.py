@@ -1,4 +1,3 @@
-from math import cos
 import random
 import copy
 from utils.actions import GameAction
