@@ -1,5 +1,5 @@
 from game import GameState
-from cards import hero, Hero
+from cards.heroes import hero, Hero
 from cards.dark_arts import DarkArtsCard
 from cards.hogwarts.hogwarts_card import HogwartsCard
 from cards.villains import VillainCard

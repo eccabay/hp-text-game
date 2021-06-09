@@ -1,4 +1,4 @@
-from cards import Hero
+from cards.heroes import Hero
 from cards.hogwarts.hogwarts_card import HogwartsCard
 from cards.villains import VillainCard
 from game import GameState

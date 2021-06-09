@@ -6,7 +6,8 @@ import sys
 from cards.hogwarts import hogwarts_deck
 from cards.dark_arts import dark_arts_deck
 from cards.villains import villain_deck
-from cards import Hero, locations
+from cards.heroes import Hero
+from cards import locations
 
 class GameState:
     def __init__(self, players, game_number):

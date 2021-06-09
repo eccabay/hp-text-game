@@ -1,8 +1,8 @@
 from cards.villains.villain_card import VillainCard
 from cards.hogwarts.hogwarts_card import HogwartsCard
+from cards.heroes import hero, Hero
 from game import GameState
 from utils import actions, Action, GameAction
-from cards import hero, Hero, Location
 
 
 def get_test_hero():

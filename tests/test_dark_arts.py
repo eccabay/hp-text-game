@@ -1,8 +1,8 @@
 from utils import actions, Action, GameAction
 from cards.dark_arts import DarkArtsCard
 from cards.hogwarts import HogwartsCard
+from cards.heroes import hero
 from game import GameState
-from cards import hero
 
 def test_discard_or_lose():
     game = GameState(['ron', 'neville'], 1)
