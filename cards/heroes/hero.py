@@ -47,10 +47,17 @@ class Hero:
             text = text + '  STUNNED'
         if self.cloaked:
             text = text + '  CLOAKED'
+        if self.ability is not None:
+            text = text + f'\nAbility: {self.ability}'
         if len(self.good_passive) > 0:
             text = text + '\nPositive passive effects: ' 
             for reason, action in self.good_passive.items():
-                text = text + f'{reason}: {action}, '
+                if isinstance(action, list):
+                    text = text + f'{reason}:'
+                    for a in action:
+                        text = text + f' {a},'
+                else:
+                    text = text + f'{reason}: {action}, '
         if len(self.bad_passive) > 0:
             text = text + '\nNegative passive effects: ' 
             for reason, action in self.bad_passive.items():
@@ -71,9 +78,12 @@ class Hero:
     def stun(self, game):
         if self.hearts <= 0 and not self.stunned:
             self.stunned = True
+            self.hearts = 0
+            self.influence = 0
+            self.attacks = 0
             game.current_location.current += 1
             cards_to_discard = math.floor(len(self.hand)/2)
-            print(f'Stunned! Current location has {game.current_location.current} metal. Discard {cards_to_discard} cards')
+            print(f'{self.name} stunned! Current location has {game.current_location.current}/{game.current_location.max} metal. Discard {cards_to_discard} cards')
             for card in range(cards_to_discard):
                 self.prompt_discard(game)
 
@@ -101,6 +111,11 @@ class Hero:
         # Apply any discarding bonus
         if discarded.discard is not None:
             discarded.discard.apply(self, game)
+        if 'discard' in self.good_passive:
+            discard_action = self.good_passive['discard']
+            if discard_action.discard_type == 'any' or discard_action.discard_type == discarded.type:
+                discard_action.apply(self, game)
+
         # Place the card in the discard pile
         self.discard.append(discarded)
 
@@ -251,9 +266,10 @@ class Hero:
         # Choose a villain to attack, and make sure the villain exists
         limited = False
         for villain_number, villain in game.current_villains.items():
-            if villain.limited:
-                limited = True
-            print(f'{villain_number} - {villain.name} ({villain.current}/{villain.strength})')
+            if villain is not None:
+                if villain.limited:
+                    limited = True
+                print(f'{villain_number} - {villain.name} ({villain.current}/{villain.strength})')
         if limited:
             print('You may only assign one attack to each villain this turn')
         

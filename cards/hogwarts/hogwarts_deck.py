@@ -109,7 +109,7 @@ marauders_map = HogwartsCard('Marauder\'s Map', 'item', cost=5, regular=Action(c
 chocolate_frog = HogwartsCard('Chocolate Frog', 'item', cost=2, regular=Action(person='any', hearts=1, influence=1), discard=Action(hearts=1, influence=1))
 butterbeer = HogwartsCard('Butterbeer', 'item', cost=3, regular=[Action(person='any', hearts=1, influence=1), Action(person='any', hearts=1, influence=1)])
 
-trelawney = HogwartsCard('Sybill Trelawney', 'ally', cost=4, regular=Action(cards=2, discard=1), discard=Action(influence=2, discard_type='spell'))
+trelawney = HogwartsCard('Sybill Trelawney', 'ally', cost=4, regular=Action(cards=2, discard=1), other=Action(influence=2, passive='discard', discard_type='spell'))
 sirius = HogwartsCard('Sirius Black', 'ally', cost=6, regular=Action(attacks=2, influence=1))
 lupin = HogwartsCard('Remus Lupin', 'ally', cost=4, regular=[Action(attacks=1), Action(person='any', hearts=3)])
 

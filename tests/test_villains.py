@@ -3,7 +3,7 @@ from cards.heroes import hero, Hero
 from cards.dark_arts import DarkArtsCard
 from cards.hogwarts.hogwarts_card import HogwartsCard
 from cards.villains import VillainCard
-from utils import Action
+from utils import Action, GameAction
 
 def test_villain_replacement():
     game = GameState(['harry', 'ron'], 1)
@@ -102,3 +102,24 @@ def test_all_discard():
     assert len(ron.hand) == 3
     assert neville.hearts == 9
     assert len(neville.hand) == 4
+
+
+def test_lucius():
+    game = GameState(['harry', 'neville'], 3)
+    lucius = VillainCard('Lucius Malfoy', 7, passive_action=GameAction(attacks=-1, passive='metal'), reward=Action(person='all', influence=1, metal=-1))
+    lucius.current = 3
+    hand_of_glory = DarkArtsCard('Hand of Glory', active=Action(hearts=-1, metal=1))
+
+    game.current_villains[1] = lucius
+    other_villain = game.current_villains[2]
+    other_villain.current = 2
+    game.dark_arts_draw.append(hand_of_glory)
+    game.dark_arts_draw.append(hand_of_glory)
+
+    game.start_turn()
+    game.draw_dark_arts()
+    assert lucius.current == 2
+    assert other_villain.current == 1
+    game.draw_dark_arts()
+    assert lucius.current == 1
+    assert other_villain.current == 0

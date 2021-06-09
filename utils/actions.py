@@ -19,7 +19,11 @@ class Action:
         self.reveal = reveal
 
     def get_information(self):
-        text = f'{self.person} hero: '
+        if self.person != 'active':
+            text = f'{self.person} hero: '
+        else:
+            text = f'hero: '
+
         if self.reveal is not None:
             text = text + f'Reveal top card of deck, if {self.reveal}: '
         if self.hearts != 0:
@@ -76,12 +80,12 @@ class Action:
 
         # Adding/removing metal doesn't depend on the number of heroes
         if current_location is not None and self.reveal is None:
+            if self.metal < 0 and 'metal' in active_hero.good_passive and current_location.current > 0:
+                active_hero.good_passive['metal'].check(active_hero, 'metal', game)
+            
             current_location.current += self.metal
             current_location.current = max(current_location.current, 0)
             current_location.current = min(current_location.current, current_location.max)
-
-            if self.metal < 0 and 'metal' in active_hero.good_passive:
-                active_hero.good_passive['metal'].check(active_hero, 'metal', game)
 
         # Apply the action
         for hero in hero_list:
@@ -94,7 +98,7 @@ class Action:
                 if self.passive == 'draw':
                     hero.bad_passive['draw'] = None
                 else:
-                    hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence)
+                    hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence, discard_type=self.discard_type)
                 continue
 
             # Reveal top card
@@ -132,7 +136,7 @@ class Action:
             # Active action
             if self.hearts < 0 and hero.cloaked:
                 hero.hearts -= 1
-            else:
+            elif not hero.stunned:
                 hero.hearts += self.hearts
                 if self.hearts > 0 and 'hearts' in hero.good_passive:
                     hero.good_passive['hearts'].check(hero, 'hearts', game)
@@ -155,13 +159,13 @@ class Action:
             # Polyjuice Potion
             if self.copy is not None:
                 copy_card = self.select_card(hero, hero.played, self.copy)
-                if copy_card is not None:
+                if copy_card is not False:
                     copy_card.play(hero, game, retry=True)  # Retry true to prevent bertie botts from triggering
 
             # Searching the discard pile
             if self.search is not None:
                 pull_card = self.select_card(hero, hero.discard, self.search)
-                if pull_card is not None:
+                if pull_card is not False:
                     hero.hand.append(pull_card)
 
     def handle_choice(self, hero, game):
@@ -183,8 +187,11 @@ class Action:
         if choice == 'hearts' or choice =='h':
             if self.hearts < 0 and hero.cloaked:
                 hero.hearts -= 1
-            else:
+            elif not hero.stunned:
                 hero.hearts += self.hearts
+                if self.hearts > 0 and 'hearts' in hero.good_passive:
+                    hero.good_passive['hearts'].check(hero, 'hearts', game)
+            hero.stun(game)
         elif choice == 'attacks' or choice == 'a':
             hero.attacks += self.attacks
         elif choice == 'influence' or choice == 'i':
@@ -207,6 +214,9 @@ class Action:
                 hero.prompt_discard(game, self.discard_type)
         elif choice == 'search' or choice == 's':
             pull_card = self.select_card(hero, hero.discard, self.search)
+            if pull_card is False:
+                self.handle_choice(hero, game)
+                return
             if pull_card is not None:
                 hero.hand.append(pull_card)
         else:
@@ -221,7 +231,7 @@ class Action:
                 available_cards.append(card)
         if len(available_cards) == 0:
             print(f'No cards of type {card_type} available')
-            return
+            return False
         # Pick which card to copy/pull back
         for i, card in enumerate(available_cards):
             print(i+1, card)

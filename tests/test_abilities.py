@@ -46,6 +46,7 @@ def test_abilities_enacted():
 
 def test_harry_ability():
     game = get_test_game()
+    game.current_location.current = 3
     metal_action = Action(metal=-1)
 
     input_values = ['harry', 'neville']

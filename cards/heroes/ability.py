@@ -8,6 +8,12 @@ class Ability:
         self.action = action
         self.completed = False
 
+    def __str__(self):
+        if self.trigger_max > 0:
+            return f'If you play more than {self.trigger_max} {self.trigger}, {self.action}'
+        else:
+            return f'If {self.trigger}, then {self.action}'
+
     def check(self, hero, trigger, game):
         if trigger != self.trigger:
             raise ValueError('Something went wrong with the abilities')

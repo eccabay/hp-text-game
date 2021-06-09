@@ -164,6 +164,7 @@ class GameState:
             for item in hero.good_passive.values():
                 if isinstance(item, Ability):
                     item.completed = False
+                    item.trigger_current = 0
             hero.good_passive = {}
             hero.bad_passive = {}
             if hero.hearts <= 0:
