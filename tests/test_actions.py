@@ -1,14 +1,12 @@
+from cards.villains.villain_card import VillainCard
 from cards.hogwarts.hogwarts_card import HogwartsCard
+from cards.heroes import hero, Hero
 from game import GameState
 from utils import actions, Action, GameAction
-from cards import hero, Hero, Location
 
 
 def get_test_hero():
-    return Hero('ron')
-
-def get_test_heroes():
-    return [Hero('harry'), Hero('ron'), Hero('hermione'), Hero('neville')]
+    return Hero('ron', 1)
 
 def get_test_game():
     return GameState(['harry', 'ron', 'hermione', 'neville'], 1)
@@ -78,7 +76,7 @@ def test_all_single_simple_action():
 
 def test_any_single_simple_action():
     test_hero = get_test_hero()
-    other_hero = Hero('harry')
+    other_hero = Hero('harry', 1)
     other_hero.hearts = 1
     other_hero.influence = 2
 
@@ -234,23 +232,9 @@ def test_choice_of_search():
     assert len(ron.hand) == 6
 
 
-def test_game_action():
-    game = get_test_game()
-    game.current_villains[1].current = 3
-
-    harry = game.get_active_hero()
-    harry.attacks = 2
-
-    action = GameAction(attacks=-1)
-    action.apply(harry, game=game)
-
-    assert game.current_villains[1].current == 2
-    assert harry.attacks == 2
-
-
 def test_discard_type_not_allowed():
     action = Action(hearts=-2, discard=1, discard_type='spell', choice=True)
-    ron = Hero('ron')
+    ron = Hero('ron', 1)
     test_item = HogwartsCard('Test Item', 'item')
     ron.hand = [test_item, test_item, test_item]
 
@@ -294,3 +278,99 @@ def test_polyjuice_with_bertie():
     assert harry.influence == 1
     assert harry.attacks == 1
     assert harry.hearts == 7
+
+
+def test_game_action():
+    game = get_test_game()
+    game.current_villains[1].current = 3
+
+    harry = game.get_active_hero()
+    harry.attacks = 2
+
+    action = GameAction(attacks=-1)
+    action.apply(harry, game=game)
+
+    assert game.current_villains[1].current == 2
+    assert harry.attacks == 2
+
+
+def test_mute_action():
+    mute_action = GameAction(mute=True)
+    game = GameState(['harry', 'ron'], 1)
+    harry, ron = game.heroes
+    villain = VillainCard('Test Villain', 4, active_action=Action(hearts=-1), passive_action=Action(hearts=-2, passive='metal'), reward=Action(hearts=3))
+    game.current_villains[1] = villain
+
+    input_values = [1]
+    def mock_input(s):
+        return input_values.pop(0)
+    actions.input = mock_input
+
+    game.apply_villains()
+    villain.apply_passive(harry, game.heroes)
+    assert 'metal' in harry.bad_passive
+    assert harry.hearts == 9
+    assert ron.hearts == 10
+
+    mute_action.apply(harry, game)
+    assert 'metal' not in harry.bad_passive
+    assert villain.muted == 'harry'
+
+    game.end_turn()  # End harry's turn
+    assert villain.muted == 'harry'
+
+    game.apply_villains()
+    villain.apply_passive(ron, game.heroes)
+    assert 'metal' not in ron.bad_passive
+    assert harry.hearts == 9
+    assert ron.hearts == 10
+    game.end_turn()  # End ron's turn
+    assert villain.muted == 'harry'
+
+    game.start_turn()
+    assert villain.muted is None
+
+
+def test_reveal_action():
+    game = get_test_game()
+    reveal_action = Action(reveal='value', metal=1)
+
+    test_novalue = HogwartsCard('Test No Value', 'spell')
+    test_value = HogwartsCard('Test Value', 'spell', cost=3)
+
+    harry = game.get_active_hero()
+    harry.deck = [test_novalue, test_value]
+    assert game.current_location.current == 0
+
+    reveal_action.apply(harry, game)  # Reveal card with value
+    assert len(harry.deck) == 1
+    assert len(harry.discard) == 1
+    assert game.current_location.current == 1
+
+    reveal_action.apply(harry, game)  # Reveal card with no value
+    assert len(harry.deck) == 1
+    assert len(harry.discard) == 1
+    assert game.current_location.current == 1
+
+
+def test_trelawney():
+    game = get_test_game()
+    trelawney = HogwartsCard('Sybill Trelawney', 'ally', cost=4, regular=Action(cards=2, discard=1), other=Action(influence=2, passive='discard', discard_type='spell'))
+    test_item = HogwartsCard('Test Item', 'item')
+    test_spell = HogwartsCard('Test Spell', 'spell')
+
+    input_values = [1, 1]
+    def mock_input(s):
+        return input_values.pop(0)
+    hero.input = mock_input
+
+    harry = game.get_active_hero()
+    harry.hand = [test_item, test_spell]
+
+    trelawney.play(harry, game)
+    assert len(harry.hand) == 3
+    assert harry.influence == 0
+
+    trelawney.play(harry, game)
+    assert len(harry.hand) == 4
+    assert harry.influence == 2

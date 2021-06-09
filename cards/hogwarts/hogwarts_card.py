@@ -1,3 +1,6 @@
+from utils.actions import Action
+
+
 class HogwartsCard:
     def __init__(self, name, type, cost=0, regular=None, discard=None, buy=None, other=None, defeat=None, regular_choice=False):
         self.name = name
@@ -55,7 +58,11 @@ class HogwartsCard:
         # If this triggers the bonus of a previously played card
         if len(hero.good_passive) > 0 and not retry:
             if self.type in hero.good_passive:
-                hero.good_passive[self.type].apply(hero)
+                action = hero.good_passive[self.type]
+                if isinstance(action, Action):
+                    action.apply(hero)
+                else:
+                    action.check(hero, self.type, game)
 
         if self.regular is not None:
             if self.regular_choice:
