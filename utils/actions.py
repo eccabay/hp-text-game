@@ -80,6 +80,9 @@ class Action:
             current_location.current = max(current_location.current, 0)
             current_location.current = min(current_location.current, current_location.max)
 
+            if self.metal < 0 and 'metal' in active_hero.good_passive:
+                active_hero.good_passive['metal'].check(active_hero, 'metal', game)
+
         # Apply the action
         for hero in hero_list:
             if self.choice:
@@ -131,6 +134,9 @@ class Action:
                 hero.hearts -= 1
             else:
                 hero.hearts += self.hearts
+                if self.hearts > 0 and 'hearts' in hero.good_passive:
+                    hero.good_passive['hearts'].check(hero, 'hearts', game)
+
             hero.stun(game)
             hero.correct_hearts()
             hero.attacks += self.attacks

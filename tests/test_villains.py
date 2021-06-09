@@ -66,7 +66,7 @@ def test_for_each():
     test_spell = HogwartsCard('Test Spell', 'spell')
     test_item = HogwartsCard('Test Item', 'item')
 
-    harry = Hero('harry')
+    harry = Hero('harry', 1)
     harry.hand = [test_spell, test_item, test_item, test_spell, test_spell]
 
     test_villain.apply_for_each(harry)

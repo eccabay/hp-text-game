@@ -61,9 +61,14 @@ class VillainCard:
 
     def attack(self, num_attacks, game, villain_index):
         if self.limited:
-            self.current += 1
-        else:
-            self.current += num_attacks
+            num_attacks = 1
+        self.current += num_attacks
+
+        hero = game.get_active_hero()
+        if 'attacks' in hero.good_passive:
+            for attack in range(num_attacks):
+                hero.good_passive['attacks'].check(hero, 'attacks', game)
+        
         print(f'{self.name}   Attacks: {self.current}/{self.strength}')
         if self.current >= self.strength:
             self.defeat(game, villain_index)

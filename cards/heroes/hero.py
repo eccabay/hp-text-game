@@ -2,9 +2,10 @@ import random
 import math
 
 from cards.hogwarts import hogwarts_deck
+from cards.heroes import ability
 
 class Hero:
-    def __init__(self, name):
+    def __init__(self, name, game):
         self.name = name
 
         self.hearts = 10
@@ -17,15 +18,19 @@ class Hero:
         self.end = False
         self.cloaked = False
 
-        # Get starting deck
+        # Get starting deck and ability
         if name == 'harry':
             self.deck = hogwarts_deck.get_harry_starting_cards()
+            self.ability = ability.get_harry_ability(game)
         elif name == 'ron': 
             self.deck = hogwarts_deck.get_ron_starting_cards()
+            self.ability = ability.get_ron_ability(game)
         elif name == 'hermione':
             self.deck = hogwarts_deck.get_hermione_starting_cards()
+            self.ability = ability.get_hermione_ability(game)
         elif name == 'neville':
             self.deck = hogwarts_deck.get_neville_starting_cards()
+            self.ability = ability.get_neville_ability(game)
         else:
             raise ValueError(f'Unknown hero {name}')
         random.shuffle(self.deck)

@@ -6,10 +6,7 @@ from utils import actions, Action, GameAction
 
 
 def get_test_hero():
-    return Hero('ron')
-
-def get_test_heroes():
-    return [Hero('harry'), Hero('ron'), Hero('hermione'), Hero('neville')]
+    return Hero('ron', 1)
 
 def get_test_game():
     return GameState(['harry', 'ron', 'hermione', 'neville'], 1)
@@ -79,7 +76,7 @@ def test_all_single_simple_action():
 
 def test_any_single_simple_action():
     test_hero = get_test_hero()
-    other_hero = Hero('harry')
+    other_hero = Hero('harry', 1)
     other_hero.hearts = 1
     other_hero.influence = 2
 
@@ -237,7 +234,7 @@ def test_choice_of_search():
 
 def test_discard_type_not_allowed():
     action = Action(hearts=-2, discard=1, discard_type='spell', choice=True)
-    ron = Hero('ron')
+    ron = Hero('ron', 1)
     test_item = HogwartsCard('Test Item', 'item')
     ron.hand = [test_item, test_item, test_item]
 
@@ -330,7 +327,7 @@ def test_mute_action():
     game.end_turn()  # End ron's turn
     assert villain.muted == 'harry'
 
-    game.draw_dark_arts()
+    game.start_turn()
     assert villain.muted is None
 
 
