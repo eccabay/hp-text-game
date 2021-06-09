@@ -2,9 +2,10 @@ import random
 import math
 
 from cards.hogwarts import hogwarts_deck
+from cards.heroes import ability
 
 class Hero:
-    def __init__(self, name):
+    def __init__(self, name, game):
         self.name = name
 
         self.hearts = 10
@@ -17,15 +18,19 @@ class Hero:
         self.end = False
         self.cloaked = False
 
-        # Get starting deck
+        # Get starting deck and ability
         if name == 'harry':
             self.deck = hogwarts_deck.get_harry_starting_cards()
+            self.ability = ability.get_harry_ability(game)
         elif name == 'ron': 
             self.deck = hogwarts_deck.get_ron_starting_cards()
+            self.ability = ability.get_ron_ability(game)
         elif name == 'hermione':
             self.deck = hogwarts_deck.get_hermione_starting_cards()
+            self.ability = ability.get_hermione_ability(game)
         elif name == 'neville':
             self.deck = hogwarts_deck.get_neville_starting_cards()
+            self.ability = ability.get_neville_ability(game)
         else:
             raise ValueError(f'Unknown hero {name}')
         random.shuffle(self.deck)
@@ -42,10 +47,17 @@ class Hero:
             text = text + '  STUNNED'
         if self.cloaked:
             text = text + '  CLOAKED'
+        if self.ability is not None:
+            text = text + f'\nAbility: {self.ability}'
         if len(self.good_passive) > 0:
             text = text + '\nPositive passive effects: ' 
             for reason, action in self.good_passive.items():
-                text = text + f'{reason}: {action}, '
+                if isinstance(action, list):
+                    text = text + f'{reason}:'
+                    for a in action:
+                        text = text + f' {a},'
+                else:
+                    text = text + f'{reason}: {action}, '
         if len(self.bad_passive) > 0:
             text = text + '\nNegative passive effects: ' 
             for reason, action in self.bad_passive.items():
@@ -66,9 +78,12 @@ class Hero:
     def stun(self, game):
         if self.hearts <= 0 and not self.stunned:
             self.stunned = True
+            self.hearts = 0
+            self.influence = 0
+            self.attacks = 0
             game.current_location.current += 1
-            cards_to_discard = math.floor(len(self.deck)/2)
-            print(f'Stunned! Current location has {game.current_location.current} metal. Discard {cards_to_discard} cards')
+            cards_to_discard = math.floor(len(self.hand)/2)
+            print(f'{self.name} stunned! Current location has {game.current_location.current}/{game.current_location.max} metal. Discard {cards_to_discard} cards')
             for card in range(cards_to_discard):
                 self.prompt_discard(game)
 
@@ -96,6 +111,11 @@ class Hero:
         # Apply any discarding bonus
         if discarded.discard is not None:
             discarded.discard.apply(self, game)
+        if 'discard' in self.good_passive:
+            discard_action = self.good_passive['discard']
+            if discard_action.discard_type == 'any' or discard_action.discard_type == discarded.type:
+                discard_action.apply(self, game)
+
         # Place the card in the discard pile
         self.discard.append(discarded)
 
@@ -136,7 +156,7 @@ class Hero:
             print(game.current_location)
             return
         if move == 'villain status' or move == 'villain':
-            for villain in game.current_villains:
+            for villain in game.current_villains.values():
                 print(villain)
             print(f'There are {len(game.villain_deck)} other villains remaining')
             return
@@ -194,7 +214,7 @@ class Hero:
                     move = input('Buy a card, attack a villain, or choose a card to play: ')
                 self.process_input(move, game)
 
-        if len(self.hand) > 0:
+        if len(self.hand) > 0 and not self.end:
             self.play_turn(game)
 
     def buy_card(self, game):
@@ -244,9 +264,21 @@ class Hero:
             return
 
         # Choose a villain to attack, and make sure the villain exists
+        limited = False
         for villain_number, villain in game.current_villains.items():
-            print(f'{villain_number} - {villain.name} ({villain.current}/{villain.strength})')
-        villain_index = input('Who would you like to attack? ')
+            if villain is not None:
+                if villain.limited:
+                    limited = True
+                print(f'{villain_number} - {villain.name} ({villain.current}/{villain.strength})')
+        if limited:
+            print('You may only assign one attack to each villain this turn')
+        
+        if len(game.current_villains) > 1:
+            villain_index = input('Who would you like to attack? ')
+        else:
+            villain_index = 1
+            print(f'Attacking {game.current_villains[1]}')
+        
         try:
             villain = game.current_villains[int(villain_index)]
         except (IndexError, ValueError):

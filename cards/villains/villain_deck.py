@@ -31,10 +31,25 @@ def game_2_deck():
     random.shuffle(deck)
     return deck
 
+# Game 3 Villains
+
+dementor = VillainCard('Dementor', 8, active_action=Action(hearts=-2), reward=Action(person='all', metal=-1))
+pettigrew = VillainCard('Peter Pettigrew', 7, active_action=Action(reveal='value', metal=1), reward=Action(person='all', search='spell', metal=-1))
+
+game_3_cards = [dementor, pettigrew]
+
+def game_3_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
     if game == 2:
         return game_2_deck()
+    if game == 3:
+        return game_3_deck()
     else:
         raise ValueError('Game not supported yet')

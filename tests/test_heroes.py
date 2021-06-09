@@ -1,4 +1,4 @@
-from cards import Hero
+from cards.heroes import Hero
 from cards.hogwarts.hogwarts_card import HogwartsCard
 from cards.villains import VillainCard
 from game import GameState
@@ -6,7 +6,7 @@ from utils import Action
 
 
 def test_harry_cloak():
-    harry = Hero('harry')
+    harry = Hero('harry', 1)
     cloak = HogwartsCard('Invisibility Cloak', 'item', regular=Action(influence=1))
     harry.deck.append(cloak)
 
@@ -24,7 +24,7 @@ def test_harry_cloak():
 
 
 def test_end_turn_resets_cards_on_top():
-    hero = Hero('neville')
+    hero = Hero('neville', 1)
     hero.cards_on_top.append('spell')
 
     hero.end_turn()

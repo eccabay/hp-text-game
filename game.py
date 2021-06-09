@@ -2,20 +2,25 @@ import getopt
 import random
 import time
 import sys
+import copy
 
 from cards.hogwarts import hogwarts_deck
 from cards.dark_arts import dark_arts_deck
 from cards.villains import villain_deck
-from cards import Hero, locations
+from cards.heroes import Hero, Ability
+
+from cards import locations
 
 class GameState:
     def __init__(self, players, game_number):
         self.turn = 0
+        self.game_number = game_number
 
         # Initialize players
         self.heroes = []
         for player in players:
-            self.heroes.append(Hero(player.lower()))
+            self.heroes.append(Hero(player.lower(), game_number))
+        self.hero_names = players
 
         # Initialize locations
         self.locations = locations.get_requested_deck(game_number)
@@ -28,8 +33,10 @@ class GameState:
         # Initialize Villains
         if game_number == 1 or game_number == 2:
             self.num_villains = 1
+        elif game_number == 3 or game_number == 4:
+            self.num_villains = 2
         else:
-            raise ValueError('Game not supported yet')
+            self.num_villains = 3
 
         self.villain_deck = villain_deck.get_requested_deck(game_number)
         self.current_villains = {}
@@ -68,11 +75,37 @@ class GameState:
         hero_number = self.turn % len(self.heroes)
         return self.heroes[hero_number]
 
-    def draw_dark_arts(self):
-        # Conditional checks for villains first
+    def get_hero(self, hero_name):
+        for hero in self.heroes:
+            if hero.name == hero_name:
+                return hero
+
+    def start_turn(self):
+        # Apply any necessary abilities
+        if self.game_number >= 3:
+            if 'harry' in self.hero_names:  # Harry's ability applies on all turns
+                harry_ability = self.get_hero('harry').ability
+                for hero in self.heroes:
+                    hero.good_passive[harry_ability.trigger] = harry_ability
+            active_hero = self.get_active_hero()
+            if active_hero.name == 'neville':  # Neville's ability applies to all heroes on his turn
+                for hero in self.heroes:
+                    hero.good_passive[active_hero.ability.trigger] = copy.deepcopy(active_hero.ability)
+            else:
+                active_hero.good_passive[active_hero.ability.trigger] = active_hero.ability
+
+        # Conditional checks for villains
         for villain in self.current_villains.values():
+
+            # Remove petrification if it's the start of the muting hero's turn
+            if villain.muted is not None:
+                if villain.muted == self.get_active_hero().name:
+                    villain.muted = None
+
             villain.apply_passive(self.get_active_hero(), self.heroes)
 
+
+    def draw_dark_arts(self):
         for i in range(self.current_location.dark_arts):
             
             # Reshuffle deck if necessary
@@ -111,6 +144,8 @@ class GameState:
                 new_villain = self.villain_deck.pop()
                 print(f'The new villian is {new_villain}\n')
                 self.current_villains[int(villian_number)] = new_villain
+            else:
+                villain.limited = False  # Undo Tarantallegra, if necessary
 
         # Lose the location, if neccessary
         if self.current_location.current >= self.current_location.max:
@@ -126,6 +161,10 @@ class GameState:
 
         # Un-stun all heroes and reset passive actions
         for hero in self.heroes:
+            for item in hero.good_passive.values():
+                if isinstance(item, Ability):
+                    item.completed = False
+                    item.trigger_current = 0
             hero.good_passive = {}
             hero.bad_passive = {}
             if hero.hearts <= 0:
@@ -147,8 +186,10 @@ class GameState:
             print('**************************************************\n')
             active_hero = self.get_active_hero()
             print(f'{active_hero.name} Hearts: {active_hero.hearts}   Influence: {active_hero.influence}   Attacks: {active_hero.attacks}\n')
+            self.start_turn()
             self.draw_dark_arts()
             print()
+            time.sleep(2)
             self.apply_villains()
             print()
             self.play_turn()
