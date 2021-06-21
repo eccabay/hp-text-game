@@ -48,6 +48,16 @@ def game_3_deck():
     return deck
 
 
+# Game 4 Dark Arts
+
+heir_of_slytherin = DarkArtsCard('Heir of Slytherin', active=Action(roll='heir'))
+morsmordre = DarkArtsCard('Morsmordre!', active=Action(person='all', hearts=-1, metal=1))
+regeneration = DarkArtsCard('Regeneration', active=GameAction(attacks=-2))
+crucio = DarkArtsCard('Crucio!', active=Action(hearts=-1), reveal=True)
+imperio = DarkArtsCard('Imperio!', active=Action(person='any', hearts=-2), reveal=True)
+avada_kedavra = DarkArtsCard('Avada Kedavra!', active=Action(hearts=-3), passive=Action(passive='stun'), reveal=True)
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()

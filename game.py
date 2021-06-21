@@ -106,9 +106,11 @@ class GameState:
             villain.apply_passive(self.get_active_hero(), self.heroes)
 
 
-    def draw_dark_arts(self):
+    def draw_dark_arts(self, num_events=None):
+        if num_events is None:
+            num_events = self.current_location.dark_arts
         if not self.silencio:
-            for i in range(self.current_location.dark_arts):
+            for i in range(num_events):
                 
                 # Reshuffle deck if necessary
                 if len(self.dark_arts_draw) == 0:

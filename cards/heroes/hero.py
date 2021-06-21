@@ -83,6 +83,8 @@ class Hero:
             self.attacks = 0
             game.current_location.current += 1
             cards_to_discard = math.floor(len(self.hand)/2)
+            if 'stun' in self.bad_passive:
+                game.current_location.current += 1
             print(f'{self.name} stunned! Current location has {game.current_location.current}/{game.current_location.max} metal. Discard {cards_to_discard} cards')
             for card in range(cards_to_discard):
                 self.prompt_discard(game)

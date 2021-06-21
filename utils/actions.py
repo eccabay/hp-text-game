@@ -101,6 +101,8 @@ class Action:
             if self.passive:
                 if self.passive == 'draw':
                     hero.bad_passive['draw'] = None
+                elif self.passive == 'stun':
+                    hero.bad_passive['stun'] = 1
                 else:
                     hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence, discard_type=self.discard_type)
                 continue
