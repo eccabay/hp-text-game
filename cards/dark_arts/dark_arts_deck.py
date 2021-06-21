@@ -57,6 +57,13 @@ crucio = DarkArtsCard('Crucio!', active=Action(hearts=-1), reveal=True)
 imperio = DarkArtsCard('Imperio!', active=Action(person='any', hearts=-2), reveal=True)
 avada_kedavra = DarkArtsCard('Avada Kedavra!', active=Action(hearts=-3), passive=Action(passive='stun'), reveal=True)
 
+game_4_cards = [heir_of_slytherin, heir_of_slytherin, morsmordre, morsmordre, regeneration, crucio, imperio, avada_kedavra]
+
+def game_4_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards)
+    random.shuffle(deck)
+    return deck
+
 
 def get_requested_deck(game):
     if game == 1:
@@ -65,5 +72,7 @@ def get_requested_deck(game):
         return game_2_deck()
     if game == 3:
         return game_3_deck()
+    if game == 4:
+        return game_4_deck()
     else:
         raise ValueError('Game not supported yet')

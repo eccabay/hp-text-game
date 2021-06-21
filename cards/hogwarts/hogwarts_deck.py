@@ -1,4 +1,3 @@
-from cards import hogwarts
 import random
 import copy
 from utils.actions import GameAction

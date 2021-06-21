@@ -42,6 +42,8 @@ class Action:
             text = text + f'Discard {self.discard} card(s) of type {self.discard_type} || '
         if self.metal != 0:
             text = text + f'Metal: {self.metal} || '
+        if self.roll is not None:
+            text = text + f'Roll {self.roll} die || '
         if self.cards_on_top is not None:
             text = text + f'{self.cards_on_top} cards purchased can go on top of deck || '
         if self.copy is not None:
@@ -227,6 +229,7 @@ class Action:
             # Discard the correct number of cards
             for i in range(self.discard):
                 hero.prompt_discard(game, self.discard_type)
+                hero.check_bad_condition('discard', game)
         elif choice == 'search' or choice == 's':
             pull_card = self.select_card(hero, hero.discard, self.search)
             if pull_card is False:
@@ -285,7 +288,7 @@ class Action:
         # Choose which die to roll
         if self.roll == 'any':
             options = ['gryffindor', 'hufflepuff', 'ravenclaw', 'slytherin']
-            die_name = input('Which die would you like to roll?')
+            die_name = input('Which die would you like to roll? ')
             if die_name not in options:
                 print('Unknown die choice, try again')
                 self.roll_die(hero, game)

@@ -51,12 +51,22 @@ def game_3_deck():
 crouch = VillainCard('Barty Crouch, Jr.', 7, passive_action=Action(person='all', passive='no metal'), reward=Action(metal=-2))
 death_eater = VillainCard('Death Eater', 7, passive_action=Action(person='all', hearts=-1, passive='death eater'), reward=Action(person='all', hearts=1, metal=-1))
 
+game_4_cards = [crouch, death_eater]
+
+def game_4_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
-    if game == 2:
+    elif game == 2:
         return game_2_deck()
-    if game == 3:
+    elif game == 3:
         return game_3_deck()
+    elif game == 4:
+        return game_4_deck()
     else:
         raise ValueError('Game not supported yet')
