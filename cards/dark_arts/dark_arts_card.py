@@ -31,6 +31,8 @@ class DarkArtsCard:
                 self.active.apply(active_hero, game)
         if 'stun' in active_hero.bad_passive:
             active_hero.bad_passive.pop('stun')
+        if self.name == 'Morsmordre!' and 'death eater' in active_hero.bad_passive:
+            active_hero.bad_passive['death eater'].apply(active_hero, game)
         if self.reveal:
             game.draw_dark_arts(1)
         return

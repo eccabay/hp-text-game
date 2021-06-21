@@ -4,6 +4,7 @@ import copy
 from utils import Action, GameAction
 from .villain_card import VillainCard
 
+
 # Game 1 Villains
 
 crabbe_goyle = VillainCard('Crabbe & Goyle', 5, passive_action=Action(person='all', hearts=-1, passive='discard'), reward=Action(person='all', cards=1))
@@ -31,6 +32,7 @@ def game_2_deck():
     random.shuffle(deck)
     return deck
 
+
 # Game 3 Villains
 
 dementor = VillainCard('Dementor', 8, active_action=Action(hearts=-2), reward=Action(person='all', metal=-1))
@@ -43,6 +45,11 @@ def game_3_deck():
     random.shuffle(deck)
     return deck
 
+
+# Game 4 Villains
+
+crouch = VillainCard('Barty Crouch, Jr.', 7, passive_action=Action(person='all', passive='no metal'), reward=Action(metal=-2))
+death_eater = VillainCard('Death Eater', 7, passive_action=Action(person='all', hearts=-1, passive='death eater'), reward=Action(person='all', hearts=1, metal=-1))
 
 def get_requested_deck(game):
     if game == 1:

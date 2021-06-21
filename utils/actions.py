@@ -84,12 +84,14 @@ class Action:
 
         # Adding/removing metal doesn't depend on the number of heroes
         if current_location is not None and self.reveal is None:
-            if self.metal < 0 and 'metal' in active_hero.good_passive and current_location.current > 0:
+            if self.metal < 0 and 'metal' in active_hero.good_passive and current_location.current > 0 and 'no metal' not in active_hero.bad_passive:
                 active_hero.good_passive['metal'].check(active_hero, 'metal', game)
             
             current_location.current += self.metal
             current_location.current = max(current_location.current, 0)
             current_location.current = min(current_location.current, current_location.max)
+        if self.metal < 0 and 'no metal' in active_hero.bad_passive:
+            print('Cannot remove metal this turn')
 
         # Apply the action
         for hero in hero_list:

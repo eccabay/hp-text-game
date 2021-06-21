@@ -76,16 +76,16 @@ def test_heir_of_slytherin():
     assert game.current_location.current == 0
     assert game.current_villains[1].current == 2
 
-    heir_action.apply(harry, game)  # Roll heart
+    heir_action.apply(harry, game)  # Roll heart/attack
     for hero in game.heroes:
-        assert hero.hearts == 9
+        assert (hero.hearts == 9 or hero.hearts == 8)
         assert len(hero.hand) == 5
     assert game.current_location.current == 0
-    assert game.current_villains[1].current == 1
+    assert (game.current_villains[1].current == 1 or game.current_villains[1].current == 2)
 
-    heir_action.apply(harry, game)  # Roll influence
+    heir_action.apply(harry, game)  # Roll influence/attacl
     for hero in game.heroes:
-        assert hero.hearts == 9
+        assert (hero.hearts == 9 or hero.hearts == 7)
         assert len(hero.hand) == 5
-    assert game.current_location.current == 1
-    assert game.current_villains[1].current == 1
+    assert (game.current_location.current == 1 or game.current_location.current == 0)
+    assert (game.current_villains[1].current == 1 or game.current_villains[1].current == 2)

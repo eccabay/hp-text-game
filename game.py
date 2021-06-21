@@ -105,7 +105,6 @@ class GameState:
 
             villain.apply_passive(self.get_active_hero(), self.heroes)
 
-
     def draw_dark_arts(self, num_events=None):
         if num_events is None:
             num_events = self.current_location.dark_arts
@@ -149,6 +148,10 @@ class GameState:
                     return
                 new_villain = self.villain_deck.pop()
                 print(f'The new villian is {new_villain}\n')
+                active_hero = self.get_active_hero()
+                if 'death eater' in active_hero.bad_passive:
+                    print('All heroes lose a heart for revealing a new villain')
+                    active_hero.bad_passive['death eater'].apply(active_hero, self)
                 self.current_villains[int(villian_number)] = new_villain
             else:
                 villain.limited = False  # Undo Tarantallegra, if necessary
