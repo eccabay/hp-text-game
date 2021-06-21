@@ -1,7 +1,9 @@
 import random
 
+from utils import gryffindor, hufflepuff, ravenclaw, slytherin
+
 class Action:
-    def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, 
+    def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, roll=None,
                  cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None):
         self.person = person  # One of {'active', 'any', 'all'}
         self.hearts = hearts
@@ -11,6 +13,7 @@ class Action:
         self.discard = discard
         self.discard_type = discard_type
         self.metal = metal
+        self.roll = roll
         self.cards_on_top = cards_on_top  # One of {'spell', 'item', 'ally'}
         self.copy = copy
         self.search = search
@@ -156,6 +159,9 @@ class Action:
             if self.cards_on_top is not None:
                 hero.cards_on_top.append(self.cards_on_top)
 
+            if self.roll is not None:
+                self.roll_die(hero, game)
+
             # Polyjuice Potion
             if self.copy is not None:
                 copy_card = self.select_card(hero, hero.played, self.copy)
@@ -246,6 +252,51 @@ class Action:
             self.select_card(hero, search_pile, card_type, pop)
             return
         return card_choice
+
+    def roll_die(self, hero, game):
+
+        # Heir of Slytherin
+        if self.roll == 'heir':
+            result = slytherin.roll()
+            if result == 'influence':
+                print('Added 1 metal to the location')
+                action = Action(metal=1)
+            elif result == 'heart':
+                print('Removed an attack from all villains')
+                action = GameAction(attacks=-1)
+            elif result == 'card':
+                print('All heroes discard a card')
+                action = Action(person='all', discard=1)
+            else:
+                print('All heroes lose a heart')
+                action = Action(person='all', hearts=-1)
+            action.apply(hero, game)
+            return
+
+        # Choose which die to roll
+        if self.roll == 'any':
+            options = ['gryffindor', 'hufflepuff', 'ravenclaw', 'slytherin']
+            die_name = input('Which die would you like to roll?')
+            if die_name not in options:
+                print('Unknown die choice, try again')
+                self.roll_die(hero, game)
+                return
+        else:
+            die_name = self.roll
+        die = eval(die_name)
+
+        # Roll the die
+        result = die.roll()
+        if result == 'influence':
+            action = Action(person='all', influence=1)
+        elif result == 'heart':
+            action = Action(person='all', hearts=1)
+        elif result == 'card':
+            action = Action(person='all', cards=1)
+        else:
+            action = Action(person='all', attacks=1)
+        action.apply(hero, game)
+
 
 # Regular actions apply to heroes, game actions apply somewhere else on the board
 class GameAction(Action):
