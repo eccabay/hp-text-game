@@ -49,6 +49,7 @@ class GameState:
         for i in range(6):
             self.store.append(self.hogwarts_cards.pop())
 
+        self.silencio = False
         self.game_over = False
 
     def print_state(self):
@@ -106,17 +107,20 @@ class GameState:
 
 
     def draw_dark_arts(self):
-        for i in range(self.current_location.dark_arts):
-            
-            # Reshuffle deck if necessary
-            if len(self.dark_arts_draw) == 0:
-                self.dark_arts_draw = self.dark_arts_discard
-                self.dark_arts_discard = []
-                random.shuffle(self.dark_arts_draw)
+        if not self.silencio:
+            for i in range(self.current_location.dark_arts):
+                
+                # Reshuffle deck if necessary
+                if len(self.dark_arts_draw) == 0:
+                    self.dark_arts_draw = self.dark_arts_discard
+                    self.dark_arts_discard = []
+                    random.shuffle(self.dark_arts_draw)
 
-            dark_arts_card = self.dark_arts_draw.pop()
-            dark_arts_card.apply(self.get_active_hero(), self)
-            self.dark_arts_discard.append(dark_arts_card)
+                dark_arts_card = self.dark_arts_draw.pop()
+                dark_arts_card.apply(self.get_active_hero(), self)
+                self.dark_arts_discard.append(dark_arts_card)
+        else:
+            self.silencio = False
 
     def apply_villains(self):
         for villain in self.current_villains.values():

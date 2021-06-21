@@ -1,3 +1,4 @@
+from cards import hogwarts
 import random
 import copy
 from utils.actions import GameAction
@@ -120,12 +121,44 @@ def game_3_deck():
     random.shuffle(deck)
     return deck
 
+
+# Game 4 Cards
+
+accio = HogwartsCard('Accio!', 'spell', 4, regular=Action(influence=2, search='item', choice=True))
+protego = HogwartsCard('Protego!', 'spell', 5, regular=Action(attacks=1, hearts=1), discard=Action(attacks=1, hearts=1))
+silencio = HogwartsCard('Silencio!', 'spell', 5, regular=Action(attacks=1, silencio=True))
+
+hogwarts_a_history = HogwartsCard('Hogwarts: A History', 'item', 4, regular=Action(roll='any'))
+pensieve = HogwartsCard('Pensieve', 'item', 5, regular=[Action(person='any', influence=1, cards=1), Action(person='any', influence=1, cards=1)])
+triwizard_cup = HogwartsCard('Triwizard Cup', 'item', 5, regular=Action(attacks=1, influence=1, hearts=1))
+
+cedric = HogwartsCard('Cedric Diggory', 'ally', 4, regular=Action(attacks=1, roll='hufflepuff'))
+fleur = HogwartsCard('Fleur Delacour', 'ally', 4, regular=Action(influence=2), other=Action(hearts=2, passive='ally'))
+krum = HogwartsCard('Viktor Krum', 'ally', 5, regular=Action(attacks=2), defeat=Action(influence=1, hearts=1))
+mcgonagall = HogwartsCard('Minerva McGonagall', 'ally', 6, regular=Action(influence=1, attacks=1, roll='gryffindor'))
+sprout = HogwartsCard('Pomona Sprout', 'ally', 6, regular=[Action(influence=1), Action(person='any', hearts=2), Action(roll='hufflepuff')])
+flitwick = HogwartsCard('Filius Flitwick', 'ally', 6, regular=Action(influence=1, cards=1, roll='ravenclaw'))
+snape = HogwartsCard('Severus Snape', 'ally', 6, regular=Action(attacks=1, hearts=2, roll='slytherin'))
+moody = HogwartsCard('Alastor "Mad-Eye" Moody', 'ally', 6, regular=Action(influence=2, metal=-1))
+
+
+game_4_cards = [accio, accio, protego, protego, protego, silencio, hogwarts_a_history, hogwarts_a_history, hogwarts_a_history, hogwarts_a_history, hogwarts_a_history,
+                hogwarts_a_history, pensieve, triwizard_cup, cedric, fleur, krum, mcgonagall, sprout, flitwick, snape, moody]
+
+def game_4_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
-    if game == 2:
+    elif game == 2:
         return game_2_deck()
-    if game == 3:
+    elif game == 3:
         return game_3_deck()
+    elif game == 4:
+        return game_4_deck()
     else:
         raise ValueError('Game not supported yet')

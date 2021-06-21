@@ -4,7 +4,7 @@ from utils import gryffindor, hufflepuff, ravenclaw, slytherin
 
 class Action:
     def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, roll=None,
-                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None):
+                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None, **kwargs):
         self.person = person  # One of {'active', 'any', 'all'}
         self.hearts = hearts
         self.attacks = attacks
@@ -20,6 +20,7 @@ class Action:
         self.passive = passive
         self.choice = choice
         self.reveal = reveal
+        self.kwargs = kwargs
 
     def get_information(self):
         if self.person != 'active':
@@ -173,6 +174,10 @@ class Action:
                 pull_card = self.select_card(hero, hero.discard, self.search)
                 if pull_card is not False:
                     hero.hand.append(pull_card)
+
+            # Anything else:
+            if 'silencio' in self.kwargs:
+                game.silencio = True
 
     def handle_choice(self, hero, game):
         options = {}
