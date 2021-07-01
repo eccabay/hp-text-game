@@ -89,7 +89,7 @@ class HogwartsCard:
         if self.other is not None:
             self.other.apply(hero)
 
-        if self.defeat is not None:
+        if self.defeat is not None and not retry:
             if 'defeat' not in hero.good_passive:
                 hero.good_passive['defeat'] = []
             hero.good_passive['defeat'].append(self.defeat)

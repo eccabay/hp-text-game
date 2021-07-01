@@ -66,7 +66,7 @@ class Hero:
             text = text + f'\nCards of type(s) {self.cards_on_top} go on top of deck'
         text = text + '\nCards in hand:'
         for card in self.hand:
-            text = text + '\n' + str(card)
+            text = text + '\n\t' + str(card)
         return text
 
     def correct_hearts(self):

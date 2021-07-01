@@ -66,11 +66,11 @@ class GameState:
         print('\nVillains:')
         for villain_number in self.current_villains.keys():
             print(f'Villain {villain_number}:')
-            print(self.current_villains[villain_number])
+            print(f'\t {self.current_villains[villain_number]}')
 
         print('\nAvailable Hogwarts Cards:')
         for hogwarts_card in self.store:
-            print(hogwarts_card)
+            print(f'\t {hogwarts_card}')
 
     def get_active_hero(self):
         hero_number = self.turn % len(self.heroes)
