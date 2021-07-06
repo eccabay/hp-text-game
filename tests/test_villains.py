@@ -123,3 +123,29 @@ def test_lucius():
     game.draw_dark_arts()
     assert lucius.current == 1
     assert other_villain.current == 0
+
+
+def test_death_eater():
+    game = GameState(['harry', 'neville'], 3)
+    death_eater = VillainCard('Death Eater', 7, passive_action=Action(person='all', hearts=-1, passive='death eater'), reward=Action(person='all', hearts=1, metal=-1))
+    dummy_villain = VillainCard('Dummy', 2, reward=Action(influence=1))
+    morsmordre = DarkArtsCard('Morsmordre!', active=Action(person='all', hearts=-1, metal=1))
+
+    game.dark_arts_draw.append(morsmordre)
+    game.current_villains[1] = death_eater
+    game.current_villains[2] = dummy_villain
+
+    harry = game.get_active_hero()
+    assert harry.hearts == 10
+
+    morsmordre.apply(harry, game)
+    assert harry.hearts == 9
+
+    game.start_turn()
+    assert 'death eater' in harry.bad_passive
+    morsmordre.apply(harry, game)
+    assert harry.hearts == 7
+
+    dummy_villain.defeat(game, 2)
+    game.end_turn()
+    assert harry.hearts == 6

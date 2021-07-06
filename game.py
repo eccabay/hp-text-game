@@ -49,6 +49,7 @@ class GameState:
         for i in range(6):
             self.store.append(self.hogwarts_cards.pop())
 
+        self.silencio = False
         self.game_over = False
 
     def print_state(self):
@@ -65,11 +66,11 @@ class GameState:
         print('\nVillains:')
         for villain_number in self.current_villains.keys():
             print(f'Villain {villain_number}:')
-            print(self.current_villains[villain_number])
+            print(f'\t {self.current_villains[villain_number]}')
 
         print('\nAvailable Hogwarts Cards:')
         for hogwarts_card in self.store:
-            print(hogwarts_card)
+            print(f'\t {hogwarts_card}')
 
     def get_active_hero(self):
         hero_number = self.turn % len(self.heroes)
@@ -104,19 +105,23 @@ class GameState:
 
             villain.apply_passive(self.get_active_hero(), self.heroes)
 
+    def draw_dark_arts(self, num_events=None):
+        if num_events is None:
+            num_events = self.current_location.dark_arts
+        if not self.silencio:
+            for i in range(num_events):
+                
+                # Reshuffle deck if necessary
+                if len(self.dark_arts_draw) == 0:
+                    self.dark_arts_draw = self.dark_arts_discard
+                    self.dark_arts_discard = []
+                    random.shuffle(self.dark_arts_draw)
 
-    def draw_dark_arts(self):
-        for i in range(self.current_location.dark_arts):
-            
-            # Reshuffle deck if necessary
-            if len(self.dark_arts_draw) == 0:
-                self.dark_arts_draw = self.dark_arts_discard
-                self.dark_arts_discard = []
-                random.shuffle(self.dark_arts_draw)
-
-            dark_arts_card = self.dark_arts_draw.pop()
-            dark_arts_card.apply(self.get_active_hero(), self)
-            self.dark_arts_discard.append(dark_arts_card)
+                dark_arts_card = self.dark_arts_draw.pop()
+                dark_arts_card.apply(self.get_active_hero(), self)
+                self.dark_arts_discard.append(dark_arts_card)
+        else:
+            self.silencio = False
 
     def apply_villains(self):
         for villain in self.current_villains.values():
@@ -143,6 +148,10 @@ class GameState:
                     return
                 new_villain = self.villain_deck.pop()
                 print(f'The new villian is {new_villain}\n')
+                active_hero = self.get_active_hero()
+                if 'death eater' in active_hero.bad_passive:
+                    print('All heroes lose a heart for revealing a new villain')
+                    active_hero.bad_passive['death eater'].apply(active_hero, self)
                 self.current_villains[int(villian_number)] = new_villain
             else:
                 villain.limited = False  # Undo Tarantallegra, if necessary

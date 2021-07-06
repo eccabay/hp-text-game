@@ -86,3 +86,34 @@ def test_tarantallegra():
 
     game.end_turn()
     assert not villain.limited
+
+
+def test_avada_kedavra():    
+    game = GameState(['harry'], 1)
+    avada_kedavra = DarkArtsCard('Avada Kedavra!', active=Action(hearts=-3), passive=Action(passive='stun'), reveal=True)
+    nothing_event = DarkArtsCard('Nothing')
+
+    game.dark_arts_draw.append(nothing_event)
+    game.dark_arts_draw.append(nothing_event)
+    harry = game.get_active_hero()
+    harry.hearts = 4
+
+    curr_dark_arts = len(game.dark_arts_draw)
+
+    hero_input_values = [1, 1]
+    def mock_hero_input(s):
+        return hero_input_values.pop(0)
+    hero.input = mock_hero_input
+
+    avada_kedavra.apply(harry, game)
+    assert harry.hearts == 1
+    assert not harry.stunned
+    assert game.current_location.current == 0
+    assert 'stun' not in harry.bad_passive
+    assert len(game.dark_arts_draw) == curr_dark_arts - 1
+
+    avada_kedavra.apply(harry, game)
+    assert harry.hearts == 0
+    assert game.current_location.current == 2
+    assert 'stun' not in harry.bad_passive
+    assert len(game.dark_arts_draw) == curr_dark_arts - 2

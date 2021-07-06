@@ -374,3 +374,19 @@ def test_trelawney():
     trelawney.play(harry, game)
     assert len(harry.hand) == 4
     assert harry.influence == 2
+
+
+def test_silencio():
+    game = get_test_game()
+    silencio_action = Action(attacks=1, silencio=True)
+    harry = game.get_active_hero()
+
+    silencio_action.apply(harry, game)
+    assert game.silencio
+
+    dark_arts_in_deck = len(game.dark_arts_draw)
+    game.draw_dark_arts()
+    assert len(game.dark_arts_draw) == dark_arts_in_deck
+    assert not game.silencio
+    game.draw_dark_arts()
+    assert len(game.dark_arts_draw) < dark_arts_in_deck

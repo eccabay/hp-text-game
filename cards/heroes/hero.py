@@ -66,7 +66,7 @@ class Hero:
             text = text + f'\nCards of type(s) {self.cards_on_top} go on top of deck'
         text = text + '\nCards in hand:'
         for card in self.hand:
-            text = text + '\n' + str(card)
+            text = text + '\n\t' + str(card)
         return text
 
     def correct_hearts(self):
@@ -83,6 +83,8 @@ class Hero:
             self.attacks = 0
             game.current_location.current += 1
             cards_to_discard = math.floor(len(self.hand)/2)
+            if 'stun' in self.bad_passive:
+                game.current_location.current += 1
             print(f'{self.name} stunned! Current location has {game.current_location.current}/{game.current_location.max} metal. Discard {cards_to_discard} cards')
             for card in range(cards_to_discard):
                 self.prompt_discard(game)

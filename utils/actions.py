@@ -1,8 +1,10 @@
 import random
 
+from utils import gryffindor, hufflepuff, ravenclaw, slytherin
+
 class Action:
-    def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, 
-                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None):
+    def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, roll=None,
+                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None, **kwargs):
         self.person = person  # One of {'active', 'any', 'all'}
         self.hearts = hearts
         self.attacks = attacks
@@ -11,12 +13,14 @@ class Action:
         self.discard = discard
         self.discard_type = discard_type
         self.metal = metal
+        self.roll = roll
         self.cards_on_top = cards_on_top  # One of {'spell', 'item', 'ally'}
         self.copy = copy
         self.search = search
         self.passive = passive
         self.choice = choice
         self.reveal = reveal
+        self.kwargs = kwargs
 
     def get_information(self):
         if self.person != 'active':
@@ -38,6 +42,8 @@ class Action:
             text = text + f'Discard {self.discard} card(s) of type {self.discard_type} || '
         if self.metal != 0:
             text = text + f'Metal: {self.metal} || '
+        if self.roll is not None:
+            text = text + f'Roll {self.roll} die || '
         if self.cards_on_top is not None:
             text = text + f'{self.cards_on_top} cards purchased can go on top of deck || '
         if self.copy is not None:
@@ -80,12 +86,14 @@ class Action:
 
         # Adding/removing metal doesn't depend on the number of heroes
         if current_location is not None and self.reveal is None:
-            if self.metal < 0 and 'metal' in active_hero.good_passive and current_location.current > 0:
+            if self.metal < 0 and 'metal' in active_hero.good_passive and current_location.current > 0 and 'no metal' not in active_hero.bad_passive:
                 active_hero.good_passive['metal'].check(active_hero, 'metal', game)
             
             current_location.current += self.metal
             current_location.current = max(current_location.current, 0)
             current_location.current = min(current_location.current, current_location.max)
+        if self.metal < 0 and 'no metal' in active_hero.bad_passive:
+            print('Cannot remove metal this turn')
 
         # Apply the action
         for hero in hero_list:
@@ -97,6 +105,8 @@ class Action:
             if self.passive:
                 if self.passive == 'draw':
                     hero.bad_passive['draw'] = None
+                elif self.passive == 'stun':
+                    hero.bad_passive['stun'] = 1
                 else:
                     hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence, discard_type=self.discard_type)
                 continue
@@ -156,6 +166,9 @@ class Action:
             if self.cards_on_top is not None:
                 hero.cards_on_top.append(self.cards_on_top)
 
+            if self.roll is not None:
+                self.roll_die(hero, game)
+
             # Polyjuice Potion
             if self.copy is not None:
                 copy_card = self.select_card(hero, hero.played, self.copy)
@@ -167,6 +180,10 @@ class Action:
                 pull_card = self.select_card(hero, hero.discard, self.search)
                 if pull_card is not False:
                     hero.hand.append(pull_card)
+
+            # Anything else:
+            if 'silencio' in self.kwargs:
+                game.silencio = True
 
     def handle_choice(self, hero, game):
         options = {}
@@ -212,6 +229,7 @@ class Action:
             # Discard the correct number of cards
             for i in range(self.discard):
                 hero.prompt_discard(game, self.discard_type)
+                hero.check_bad_condition('discard', game)
         elif choice == 'search' or choice == 's':
             pull_card = self.select_card(hero, hero.discard, self.search)
             if pull_card is False:
@@ -246,6 +264,51 @@ class Action:
             self.select_card(hero, search_pile, card_type, pop)
             return
         return card_choice
+
+    def roll_die(self, hero, game):
+
+        # Heir of Slytherin
+        if self.roll == 'heir':
+            result = slytherin.roll()
+            if result == 'influence':
+                print('Added 1 metal to the location')
+                action = Action(metal=1)
+            elif result == 'heart':
+                print('Removed an attack from all villains')
+                action = GameAction(attacks=-1)
+            elif result == 'card':
+                print('All heroes discard a card')
+                action = Action(person='all', discard=1)
+            else:
+                print('All heroes lose a heart')
+                action = Action(person='all', hearts=-1)
+            action.apply(hero, game)
+            return
+
+        # Choose which die to roll
+        if self.roll == 'any':
+            options = ['gryffindor', 'hufflepuff', 'ravenclaw', 'slytherin']
+            die_name = input('Which die would you like to roll? ')
+            if die_name not in options:
+                print('Unknown die choice, try again')
+                self.roll_die(hero, game)
+                return
+        else:
+            die_name = self.roll
+        die = eval(die_name)
+
+        # Roll the die
+        result = die.roll()
+        if result == 'influence':
+            action = Action(person='all', influence=1)
+        elif result == 'heart':
+            action = Action(person='all', hearts=1)
+        elif result == 'card':
+            action = Action(person='all', cards=1)
+        else:
+            action = Action(person='all', attacks=1)
+        action.apply(hero, game)
+
 
 # Regular actions apply to heroes, game actions apply somewhere else on the board
 class GameAction(Action):

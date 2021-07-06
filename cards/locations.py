@@ -1,14 +1,21 @@
 import copy
 
+from utils import Action
+
 class Location:
-    def __init__(self, name, max, dark_arts):
+    def __init__(self, name, max, dark_arts, reveal_action=None):
         self.name = name
         self.max = max
         self.dark_arts = dark_arts
+        self.reveal_action = reveal_action
         self.current = 0
 
     def __str__(self):
         return f'{self.name}   Metal: {self.current}/{self.max}   {self.dark_arts} Dark Arts Events'
+
+    def reveal(self, game):
+        if self.reveal_action is not None:
+            self.reveal_action.apply(game.active_hero, game)
 
 
 # Game 1 Locations
@@ -43,6 +50,17 @@ def game_3_deck():
     return copy.deepcopy(game_3_cards)
 
 
+# Game 4 Locations
+world_cup = Location('1 of 3 - Quidditch World Cup', 6, 1)
+triwizard_tournament = Location('2 of 3 - Triwizard Tournament', 6, 2)
+graveyard = Location('3 of 3 - Graveyard', 7, 2, Action(person='all', discard=1, discard_type='ally'))
+
+game_4_cards = [world_cup, triwizard_tournament, graveyard]
+
+def game_4_deck():
+    return copy.deepcopy(game_4_cards)
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
@@ -50,5 +68,7 @@ def get_requested_deck(game):
         return game_2_deck()
     elif game == 3:
         return game_3_deck()
+    elif game == 4:
+        return game_4_deck()
     else:
         raise ValueError('Game not supported yet')

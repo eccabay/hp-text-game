@@ -48,6 +48,23 @@ def game_3_deck():
     return deck
 
 
+# Game 4 Dark Arts
+
+heir_of_slytherin = DarkArtsCard('Heir of Slytherin', active=Action(roll='heir'))
+morsmordre = DarkArtsCard('Morsmordre!', active=Action(person='all', hearts=-1, metal=1))
+regeneration = DarkArtsCard('Regeneration', active=GameAction(attacks=-2))
+crucio = DarkArtsCard('Crucio!', active=Action(hearts=-1), reveal=True)
+imperio = DarkArtsCard('Imperio!', active=Action(person='any', hearts=-2), reveal=True)
+avada_kedavra = DarkArtsCard('Avada Kedavra!', active=Action(hearts=-3), passive=Action(passive='stun'), reveal=True)
+
+game_4_cards = [heir_of_slytherin, heir_of_slytherin, morsmordre, morsmordre, regeneration, crucio, imperio, avada_kedavra]
+
+def game_4_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
@@ -55,5 +72,7 @@ def get_requested_deck(game):
         return game_2_deck()
     if game == 3:
         return game_3_deck()
+    if game == 4:
+        return game_4_deck()
     else:
         raise ValueError('Game not supported yet')
