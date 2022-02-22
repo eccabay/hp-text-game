@@ -4,7 +4,7 @@ from utils import gryffindor, hufflepuff, ravenclaw, slytherin
 
 class Action:
     def __init__(self, person='active', hearts=0, attacks=0, influence=0, cards=0, discard=0, discard_type='any', metal=0, roll=None,
-                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None, **kwargs):
+                 cards_on_top=None, copy=None, search=None, passive=False, choice=False, reveal=None, trigger_amt=None, **kwargs):
         self.person = person  # One of {'active', 'any', 'all'}
         self.hearts = hearts
         self.attacks = attacks
@@ -20,6 +20,7 @@ class Action:
         self.passive = passive
         self.choice = choice
         self.reveal = reveal
+        self.trigger = [trigger_amt, 0] if trigger_amt is not None else None
         self.kwargs = kwargs
 
     def get_information(self):
@@ -97,6 +98,19 @@ class Action:
 
         # Apply the action
         for hero in hero_list:
+
+            # Check for a Weasley in other hands
+            if 'weasley' in self.kwargs:
+                cont = False
+                for other_hero in all_heroes:
+                    if other_hero.name != active_hero.name and other_hero.has_weasley():
+                        cont = True
+                        print(f'{other_hero.name} has a Weasley! Applying bonus.')
+                        break
+                if not cont:
+                    print('No other hero has a Weasley in hand.')
+                    return
+
             if self.choice:
                 self.handle_choice(hero, game)
                 continue
@@ -108,7 +122,7 @@ class Action:
                 elif self.passive == 'stun':
                     hero.bad_passive['stun'] = 1
                 else:
-                    hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence, discard_type=self.discard_type)
+                    hero.good_passive[self.passive] = Action(person=self.person, hearts=self.hearts, attacks=self.attacks, influence=self.influence, discard_type=self.discard_type, trigger_amt=self.trigger[0])
                 continue
 
             # Reveal top card
@@ -199,6 +213,8 @@ class Action:
             options['discard'] = self.discard
         if self.search is not None:
             options['search'] = self.search
+        if self.metal != 0:
+            options['metal'] = self.metal
 
         choice = input(f'{hero.name}, choose either of {options}: ')
         if choice == 'hearts' or choice =='h':
@@ -237,6 +253,11 @@ class Action:
                 return
             if pull_card is not None:
                 hero.hand.append(pull_card)
+        elif choice == 'metal' or 'm':
+            loc = game.current_location
+            loc.current += self.metal
+            loc.current = max(loc.current, 0)
+            loc.current = min(loc.current, loc.max)
         else:
             print(f'Choice of {choice} is invalid. Try again')
             self.handle_choice(hero, game)

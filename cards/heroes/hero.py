@@ -322,3 +322,9 @@ class Hero:
         print(f'{self.name}\'s turn is over. New cards:')
         for card in self.hand:
             print(card)
+
+    def has_weasley(self):
+        for card in self.hand:
+            if card.is_weasley():
+                return True
+        return False

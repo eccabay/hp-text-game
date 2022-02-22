@@ -60,7 +60,10 @@ class HogwartsCard:
             if self.type in hero.good_passive:
                 action = hero.good_passive[self.type]
                 if isinstance(action, Action):
-                    action.apply(hero)
+                    if action.trigger is not None:  # Increase the count, if the effect needs to be triggered
+                        action.trigger[1] += 1
+                    if action.trigger is None or action.trigger[0]==action.trigger[1]:
+                        action.apply(hero)
                 else:
                     action.check(hero, self.type, game)
 
@@ -93,3 +96,6 @@ class HogwartsCard:
             if 'defeat' not in hero.good_passive:
                 hero.good_passive['defeat'] = []
             hero.good_passive['defeat'].append(self.defeat)
+
+    def is_weasley(self):
+        return 'Weasley' in self.name

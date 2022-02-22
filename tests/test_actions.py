@@ -390,3 +390,45 @@ def test_silencio():
     assert not game.silencio
     game.draw_dark_arts()
     assert len(game.dark_arts_draw) < dark_arts_in_deck
+
+
+def test_owls():
+    game = get_test_game()
+    owls_action = Action(hearts=1, attacks=1, passive='spell', trigger_amt=2)
+    harry = game.get_active_hero()
+    harry.hearts = 8
+    test_spell = HogwartsCard('Test Spell', 'spell')
+
+    owls_action.apply(harry, game)
+    assert harry.hearts == 8
+    assert harry.attacks == 0
+
+    test_spell.play(harry, game)
+    assert harry.hearts == 8
+    assert harry.attacks == 0
+
+    test_spell.play(harry, game)
+    assert harry.hearts == 9
+    assert harry.attacks == 1
+
+
+def test_weasleys():
+    game = get_test_game()
+    fred_action = Action(influence=1, weasley=True)
+    george = HogwartsCard('George Weasley', 'ally', 4, regular=Action(attacks=1, roll='gryffindor'))
+
+    harry = game.get_active_hero()
+    ron = game.get_hero('ron')
+    ron.hand = []
+
+    fred_action.apply(harry, game)
+    assert harry.influence == 0
+
+    ron.hand = [george]
+    fred_action.apply(harry, game)
+    assert harry.influence == 1
+    assert ron.influence == 0
+
+    fred_action.apply(ron, game)
+    assert harry.influence == 1
+    assert ron.influence == 0

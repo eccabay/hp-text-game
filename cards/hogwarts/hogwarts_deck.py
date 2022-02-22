@@ -150,6 +150,28 @@ def game_4_deck():
     return deck
 
 
+# Game 5 Cards
+
+stupefy = HogwartsCard('Stupefy!', 'spell', 6, regular=Action(attacks=1, metal=-1, cards=1))
+
+owls = HogwartsCard('O.W.L.S', 'item', 4, regular=Action(influence=2), other=Action(hearts=1, attacks=1, passive='spell', trigger_amt=2))
+
+dursleys = HogwartsCard('The Dursleys', 'ally', 3, regular=Action(influence=1), discard=Action(attacks=1, hearts=1, cards=1))
+fred = HogwartsCard('Fred Weasley', 'ally', 4, regular=[Action(attacks=1, roll='gryffindor'), Action(influence=1, weasley=True)])
+george = HogwartsCard('George Weasley', 'ally', 4, regular=[Action(attacks=1, roll='gryffindor'), Action(hearts=1, weasley=True)])
+cho = HogwartsCard('Cho Chang', 'ally', 4, regular=Action(cards=3, discard=2, roll='ravenclaw'))
+luna = HogwartsCard('Luna Lovegood', 'ally', 5, regular=Action(influence=1, roll='ravenclaw'), other=Action(attacks=1, passive='item'))
+tonks = HogwartsCard('Nymphadora Tonks', 'ally', 5, regular=Action(influence=3, attacks=2, metal=-1, choice=True))
+kingsley = HogwartsCard('Kingsley Shacklebolt', 'ally', 7, regular=Action(attacks=2, hearts=1, metal=-1))
+
+game_5_cards = [stupefy, stupefy, owls, owls, dursleys, fred, george, cho, luna, tonks, kingsley]
+
+def game_5_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards) + copy.deepcopy(game_5_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
@@ -159,5 +181,7 @@ def get_requested_deck(game):
         return game_3_deck()
     elif game == 4:
         return game_4_deck()
+    elif game == 5:
+        return game_5_deck()
     else:
         raise ValueError('Game not supported yet')
