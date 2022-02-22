@@ -93,7 +93,7 @@ class Hero:
         print('Cards:')
         for i, card in enumerate(self.hand):
             print(f'{i+1} {card.get_information()}')
-        discard_index = input('Choose a card to discard: ')
+        discard_index = input(f'{self.name}, choose a card to discard: ')
 
         # Try to discard, if the input is invalid just retry
         try:

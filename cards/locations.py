@@ -61,6 +61,16 @@ def game_4_deck():
     return copy.deepcopy(game_4_cards)
 
 
+# Game 5 Locations
+azkaban = Location('1 of 3 - Azkaban', 7, 1)
+hall_of_prophecy = Location('2 of 3 - Hall of Prophecy', 7, 2)
+ministry_of_magic = Location('3 of 3 - Ministry of Magic', 7, 2, Action(person='all', discard=1, discard_type='spell'))
+
+game_5_cards = [azkaban, hall_of_prophecy, ministry_of_magic]
+
+def game_5_deck():
+    return copy.deepcopy(game_5_cards)
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
@@ -70,5 +80,7 @@ def get_requested_deck(game):
         return game_3_deck()
     elif game == 4:
         return game_4_deck()
+    elif game == 5:
+        return game_5_deck()
     else:
         raise ValueError('Game not supported yet')
