@@ -65,14 +65,29 @@ def game_4_deck():
     return deck
 
 
+# Game 5 Dark Arts
+
+legilimency = DarkArtsCard('Legilimency', active=Action(person='all', reveal='spell', hearts=-2))
+educational_decree = DarkArtsCard('Educational Decree', active=Action(educational_decree=True))
+
+game_5_cards = [legilimency, educational_decree, educational_decree, morsmordre, crucio, imperio, avada_kedavra]
+
+def game_5_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards) + copy.deepcopy(game_5_cards)
+    random.shuffle(deck)
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
-    if game == 2:
+    elif game == 2:
         return game_2_deck()
-    if game == 3:
+    elif game == 3:
         return game_3_deck()
-    if game == 4:
+    elif game == 4:
         return game_4_deck()
+    elif game == 5:
+        return game_5_deck()
     else:
         raise ValueError('Game not supported yet')

@@ -150,12 +150,23 @@ class Action:
                     if top_card.type == self.reveal:
                         top_card = hero.deck.pop()
                         hero.discard.append(top_card)
-                        if current_location is not None:
+                        if self.metal != 0 and current_location is not None:
                             current_location.current += self.metal
                         print('Discarded card')
                     else:
                         print('Safe!')
                         continue
+
+            # Educational decree
+            if 'educational_decree' in self.kwargs:
+                hearts_to_lose = 0
+                for card in hero.hand:
+                    if card.cost >= 4:
+                        hearts_to_lose += 1
+                if hero.cloaked and hearts_to_lose > 0:
+                    hero.hearts -= 1
+                else:
+                    hero.hearts -= hearts_to_lose
 
             # Active action
             if self.hearts < 0 and hero.cloaked:
