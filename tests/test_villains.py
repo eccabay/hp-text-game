@@ -1,7 +1,7 @@
 from game import GameState
 from cards.heroes import hero, Hero
 from cards.dark_arts import DarkArtsCard
-from cards.hogwarts.hogwarts_card import HogwartsCard
+from cards.hogwarts import HogwartsCard
 from cards.villains import VillainCard
 from utils import Action, GameAction
 
@@ -149,3 +149,30 @@ def test_death_eater():
     dummy_villain.defeat(game, 2)
     game.end_turn()
     assert harry.hearts == 6
+
+
+def test_umbridge():
+    game = GameState(['harry', 'neville'], 3)
+    umbridge = VillainCard('Dolores Umbridge', 7, passive_action=Action(person='all', passive='buy', hearts=-1))
+
+    game.current_villains[1] = umbridge
+    cheap = HogwartsCard('cheap', 'ally', 2)
+    expensive = HogwartsCard('expensive', 'item', 5)
+    game.store = [cheap, expensive]
+
+    harry = game.get_active_hero()
+    harry.influence = 7
+
+    input_values = [1, 1]
+    def mock_input(s):
+        return input_values.pop(0)
+    hero.input = mock_input
+
+    game.start_turn()
+    harry.buy_card(game)
+    assert harry.hearts == 10
+    assert harry.influence == 5
+
+    harry.buy_card(game)
+    assert harry.hearts == 9
+    assert harry.influence == 0

@@ -432,3 +432,31 @@ def test_weasleys():
     fred_action.apply(ron, game)
     assert harry.influence == 1
     assert ron.influence == 0
+
+
+def test_educational_decree():
+    game = get_test_game()
+    decree_action = Action(educational_decree=True)
+
+    one_card = HogwartsCard('cheap', 'item', 1)
+    four_card = HogwartsCard('expensive', 'spell', 4)
+    seven_card = HogwartsCard('more', 'item', 7)
+
+    harry = game.get_active_hero()
+    harry.hand = [one_card, one_card]
+
+    decree_action.apply(harry, game)
+    assert harry.hearts == 10
+
+    harry.hand.append(four_card)
+    decree_action.apply(harry, game)
+    assert harry.hearts == 9
+
+    harry.hand.append(seven_card)
+    #import pdb; pdb.set_trace()
+    decree_action.apply(harry, game)
+    assert harry.hearts == 7
+
+    harry.cloaked = True
+    decree_action.apply(harry, game)
+    assert harry.hearts == 6
