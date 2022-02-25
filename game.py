@@ -138,6 +138,12 @@ class GameState:
         self.store.append(new_card)
         print(f'New Hogwarts Card: {new_card}')
 
+    def only_voldemort_remaining(self):
+        for villain in self.current_villains.values():
+            if villain is not None and 'Voldemort' not in villain.name:
+                return False
+        return True
+
     def end_turn(self):
         # Replace any defeated villians
         for villian_number, villain in self.current_villains.items():
@@ -153,6 +159,11 @@ class GameState:
                     print('All heroes lose a heart for revealing a new villain')
                     active_hero.bad_passive['death eater'].apply(active_hero, self)
                 self.current_villains[int(villian_number)] = new_villain
+
+                if self.game_number >= 5 and len(self.villain_deck) == 1:
+                    voldemort = self.villain_deck.pop()
+                    print('Lord Voldemort has been revealed')
+                    self.current_villains[4] = voldemort
             else:
                 villain.limited = False  # Undo Tarantallegra, if necessary
 

@@ -27,6 +27,8 @@ class VillainCard:
         text = text + f'\nReward: {self.reward.get_information()}'
         if self.muted is not None:
             text = text + f'\nMUTED by {self.muted}'
+        if 'Voldemort' in self.name:
+            text = text + '\nCannot be attacked until all other villains are defeated'
         return text
 
     def apply_passive(self, active_hero, all_heroes):
@@ -60,6 +62,9 @@ class VillainCard:
             time.sleep(2)
 
     def attack(self, num_attacks, game, villain_index):
+        if 'Voldemort' in self.name and not game.only_voldemort_remaining():
+            print('Cannot attack Voldemort without defeating all other villains first')
+            return
         if self.limited:
             num_attacks = 1
         self.current += num_attacks

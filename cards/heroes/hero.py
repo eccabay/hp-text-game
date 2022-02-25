@@ -251,6 +251,8 @@ class Hero:
         card = game.store.pop(card_index)
         self.influence -= card.cost
         print(f'\nYou bought {card.name}. You now have {self.influence} influence')
+        if card.cost >= 4:
+           self.check_bad_condition('buy', game)
         game.new_hogwarts_card()
 
         if len(self.cards_on_top) > 0:

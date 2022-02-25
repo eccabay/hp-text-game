@@ -59,6 +59,20 @@ def game_4_deck():
     return deck
 
 
+# Game 5 Villains
+
+umbridge = VillainCard('Dolores Umbridge', 7, passive_action=Action(person='all', passive='buy', hearts=-1))
+voldemort_5 = VillainCard('Lord Voldemort', 10, active_action=Action(hearts=-1, discard=1))
+
+game_5_cards = [umbridge, death_eater]
+
+def game_5_deck():
+    deck = copy.deepcopy(game_1_cards) + copy.deepcopy(game_2_cards) + copy.deepcopy(game_3_cards) + copy.deepcopy(game_4_cards) + copy.deepcopy(game_5_cards)
+    random.shuffle(deck)
+    deck = [voldemort_5] + deck
+    return deck
+
+
 def get_requested_deck(game):
     if game == 1:
         return game_1_deck()
@@ -68,5 +82,7 @@ def get_requested_deck(game):
         return game_3_deck()
     elif game == 4:
         return game_4_deck()
+    elif game == 5:
+        return game_5_deck()
     else:
         raise ValueError('Game not supported yet')
